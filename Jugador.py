@@ -24,3 +24,11 @@ class Jugador:
     
     def vivoOmuerto(self):
         return self.muerto
+
+
+#para pillar las teclas del jugador usamos en python, msvrct.getch()decode(FORMAT)
+# startime = time.time()
+# 
+# while True:
+#   msg = ""
+#   if  msvcrt SEGUIR CON LA FOTO DE LUIS
