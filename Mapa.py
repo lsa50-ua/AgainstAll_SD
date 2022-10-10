@@ -21,11 +21,24 @@ class Mapa:
 
     #imprime el mapa del juego
     def printMapa(self):
+        for cols in range(21):
+            if cols == 0:
+                print("  ", end="|")
+            else:
+                if(cols <= 9):
+                    print(end=" ")
+                print(cols, end="|")
+
+        print()
         for i in range(20):
-            if i > 0:
-                print()
+            print(i + 1, end="|")
+            
             for j in range(20):
-                print(self.matriz[i][j], ',', end=" ")
+                print(self.matriz[i][j], end="|")
+                if j == 19:
+                    print()
+
+
 
 
 
