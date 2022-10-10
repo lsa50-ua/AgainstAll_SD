@@ -4,13 +4,14 @@
 
 import socket 
 import threading
+from Jugador import * 
 
 HEADER = 64
 PORT = 5050
 FORMAT = 'utf-8'
 FIN = "FIN"
 
-SERVER = socket.gethostbyname(socket.gethostname())
+SERVER = socket.gethostbyname(socket.gethostname())     #Si imprimes la variable SERVER, imprime la ip del servidor
 ADDR = (SERVER, PORT)
 MAX_CONEXIONES = 5     #nº conexiones que puede conectar a la vez
 
@@ -60,7 +61,4 @@ def start():
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind(ADDR)
-
-#print("[STARTING] Servidor inicializándose...")
-
 start()

@@ -19,7 +19,7 @@ class Mapa:
                 else:
                         self.matriz[i][j] = ' '
 
-    #imprime el mapa del juego
+    #imprime el mapa del juego              #SIN TERMINAR
     def printMapa(self):
         for cols in range(21):
             if cols == 0:
