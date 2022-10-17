@@ -34,8 +34,6 @@ def handle_client(conn, addr):
     #print("ADIOS. TE ESPERO EN OTRA OCASION")
     conn.close()
     
-        
-
 def start():
     server.listen()
     #print(f"[LISTENING] Servidor a la escucha en {SERVER}")

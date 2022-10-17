@@ -46,7 +46,6 @@ class Jugador:
         return self.muerto
 
 
-
 def send(ALIAS, PASSWORD, NIVEL, EC, EF):
     alias = ALIAS.encode(FORMAT)
     password = PASSWORD.enconde(FORMAT)
@@ -61,7 +60,8 @@ def send(ALIAS, PASSWORD, NIVEL, EC, EF):
 
     client.send(aliasSend_length)
     client.send(alias)
-    
+
+#HAY QUE DECIR EN EL INICIO DE LA PARTIDA, QUE TIENEN QUE PONER X PARÁMETROS    
 
 if (len(sys.argv) == 5):
     SERVER = sys.argv[1]
