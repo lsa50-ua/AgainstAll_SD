@@ -1,4 +1,3 @@
-
 from Jugador import *
 
 MAXJUGADORES = 5

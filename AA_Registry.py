@@ -7,13 +7,13 @@ import threading
 from Jugador import * 
 
 HEADER = 64
-PORT = 5050
+PORT = 5050     # Este puerto se le tiene que pasar por argumento, pero para facilitar las cosas lo ponemos por defecto
 FORMAT = 'utf-8'
 FIN = "FIN"
 
-SERVER = socket.gethostbyname(socket.gethostname())     #Si imprimes la variable SERVER, imprime la ip del servidor
+SERVER = socket.gethostbyname(socket.gethostname())     # Si imprimes la variable SERVER, imprime la ip del servidor
 ADDR = (SERVER, PORT)
-MAX_CONEXIONES = 5     #nº conexiones que puede conectar a la vez
+MAX_CONEXIONES = 5     # nº conexiones que puede conectar a la vez
 
 def handle_client(conn, addr):
     #print(f"[NUEVA CONEXION] {addr} connected.")
@@ -26,9 +26,25 @@ def handle_client(conn, addr):
         if msg_length:
             msg_length = int(msg_length)
             msg = conn.recv(msg_length).decode(FORMAT)
+            parametros = msg.split(":")
 
-            if msg == FIN:
+            if len(parametros) == 5:
+                ALIAS = parametros[0]
+                PASSWORD = parametros[1]
+                NIVEL = parametros[2]
+                EC = parametros[3]
+                EF = parametros[4]
+
+                f = open('Registro.txt','a')    # 'a' significa que escribimos en un fichero ya creado
+                f.write('\n' + ALIAS + ' ' + PASSWORD + ' ' + NIVEL + ' ' + EC + ' ' + EF)    # '\n' para escribir en un línea abajo
+                f.close()
+
+                print("Hola mi nombre es "+ ALIAS +" y soy nivel "+ NIVEL)
+
                 connected = False
+
+            #if msg == FIN:
+                #connected = False
             #print(f" He recibido del cliente [{addr}] el mensaje: {msg}")
             conn.send(f"Soy el servidor y he recibido tu mensaje: {msg} ".encode(FORMAT))
     #print("ADIOS. TE ESPERO EN OTRA OCASION")

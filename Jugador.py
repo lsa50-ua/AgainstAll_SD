@@ -36,8 +36,14 @@ class Jugador:
     def obtenerEC(self):
         return self.EC
 
+    def asignarEC(self,EC):
+        self.EC = EC
+
     def obtenerEF(self):
         return self.EF
+    
+    def asignarEF(self,EF):
+        self.EF = EF
 
     def matar(self):
         self.muerto = True
@@ -46,20 +52,13 @@ class Jugador:
         return self.muerto
 
 
-def send(ALIAS, PASSWORD, NIVEL, EC, EF):
-    alias = ALIAS.encode(FORMAT)
-    password = PASSWORD.enconde(FORMAT)
-
-    alias_length = len(alias)
-    password_length = len(password)
-    aliasSend_length = str(alias_length).encode(FORMAT)
-    passwordSend_length = str(password_length).encode(FORMAT)
-
-    send_length += b' ' * (HEADER - len(aliasSend_length))
-    passwordSend_length += b' ' * (HEADER - len(passwordSend_length))
-
-    client.send(aliasSend_length)
-    client.send(alias)
+def send(msg):
+    message = msg.encode(FORMAT)
+    msg_length = len(message)
+    send_length = str(msg_length).encode(FORMAT)
+    send_length += b' ' * (HEADER - len(send_length))
+    client.send(send_length)
+    client.send(message)
 
 #HAY QUE DECIR EN EL INICIO DE LA PARTIDA, QUE TIENEN QUE PONER X PARÁMETROS    
 
@@ -82,10 +81,12 @@ if (len(sys.argv) == 5):
     EC=jugador.obtenerEC()
     EF=jugador.obtenerEF()
 
-    send(ALIAS,PASSWORD,NIVEL,EC,EF)
+    msg = ALIAS + ":" + PASSWORD + ":" + NIVEL + ":" + EC + ":" + EF
+
+    send(msg)
 
     #print("Envio al servidor: ", FIN)
-    send("FIN")
+    #send("FIN")
     client.close()
 else:
     print ("Parece que algo falló. Necesito estos argumentos: <ServerIP> <Puerto> <ALIAS> <PASSWORD>")
