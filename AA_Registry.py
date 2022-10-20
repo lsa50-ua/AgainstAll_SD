@@ -4,75 +4,82 @@
 
 import socket 
 import threading
+import sys
 from Jugador import * 
 
 HEADER = 64
-PORT = 5050     # Este puerto se le tiene que pasar por argumento, pero para facilitar las cosas lo ponemos por defecto
+#PORT = 5050     # Este puerto se le tiene que pasar por argumento, pero para facilitar las cosas lo ponemos por defecto
 FORMAT = 'utf-8'
-FIN = "FIN"
+#FIN = "FIN"
 
 SERVER = socket.gethostbyname(socket.gethostname())     # Si imprimes la variable SERVER, imprime la ip del servidor
-ADDR = (SERVER, PORT)
-MAX_CONEXIONES = 5     # nº conexiones que puede conectar a la vez
 
-def handle_client(conn, addr):
-    #print(f"[NUEVA CONEXION] {addr} connected.")
+if (len(sys.argv) == 2):
+    PORT = int(sys.argv[1])
+    ADDR = (SERVER, PORT)
+    MAX_CONEXIONES = 5     # nº conexiones que puede conectar a la vez
 
-    connected = True
+    def handle_client(conn, addr):
+        #print(f"[NUEVA CONEXION] {addr} connected.")
 
-    while connected:
-        msg_length = conn.recv(HEADER).decode(FORMAT)
+        connected = True
 
-        if msg_length:
-            msg_length = int(msg_length)
-            msg = conn.recv(msg_length).decode(FORMAT)
-            parametros = msg.split(":")
+        while connected:
+            msg_length = conn.recv(HEADER).decode(FORMAT)
 
-            if len(parametros) == 5:
-                ALIAS = parametros[0]
-                PASSWORD = parametros[1]
-                NIVEL = parametros[2]
-                EC = parametros[3]
-                EF = parametros[4]
+            if msg_length:
+                msg_length = int(msg_length)
+                msg = conn.recv(msg_length).decode(FORMAT)
+                parametros = msg.split(":")
 
-                f = open('Registro.txt','a')    # 'a' significa que escribimos en un fichero ya creado
-                f.write('\n' + ALIAS + ' ' + PASSWORD + ' ' + NIVEL + ' ' + EC + ' ' + EF)    # '\n' para escribir en un línea abajo
-                f.close()
+                if len(parametros) == 5:
+                    ALIAS = parametros[0]
+                    PASSWORD = parametros[1]
+                    NIVEL = parametros[2]
+                    EC = parametros[3]
+                    EF = parametros[4]
 
-                print("Hola mi nombre es "+ ALIAS +" y soy nivel "+ NIVEL)
+                    f = open('Registro.txt','a')    # 'a' significa que escribimos en un fichero ya creado
+                    f.write('\n' + 'Alias: '+ALIAS + '   Contraseña: ' + PASSWORD + '   Nivel: ' + NIVEL + '   EC: ' + EC + '   EF: ' + EF)    # '\n' para escribir en un línea abajo
+                    f.close()
 
-                connected = False
+                    print("El jugador '"+ ALIAS + "' se ha registrado para la partida.")
 
-            #if msg == FIN:
-                #connected = False
-            #print(f" He recibido del cliente [{addr}] el mensaje: {msg}")
-            conn.send(f"Soy el servidor y he recibido tu mensaje: {msg} ".encode(FORMAT))
-    #print("ADIOS. TE ESPERO EN OTRA OCASION")
-    conn.close()
-    
-def start():
-    server.listen()
-    #print(f"[LISTENING] Servidor a la escucha en {SERVER}")
-    CONEX_ACTIVAS = threading.active_count()-1
-    #print(CONEX_ACTIVAS)
+                    connected = False
 
-    while True:
-        conn, addr = server.accept()
-        CONEX_ACTIVAS = threading.active_count()
-
-        if (CONEX_ACTIVAS <= MAX_CONEXIONES): 
-            thread = threading.Thread(target=handle_client, args=(conn, addr))
-            thread.start()
-            #print(f"[CONEXIONES ACTIVAS] {CONEX_ACTIVAS}")
-            #print("CONEXIONES RESTANTES PARA CERRAR EL SERVICIO", MAX_CONEXIONES-CONEX_ACTIVAS)
-        else:
-            #print("OOppsss... DEMASIADAS CONEXIONES. ESPERANDO A QUE ALGUIEN SE VAYA")
-            conn.send("Demasiadas conexiones. Tendrás que esperar a que alguien se vaya".encode(FORMAT))
-            conn.close()
-            CONEX_ACTUALES = threading.active_count()-1
+                #if msg == FIN:
+                    #connected = False
+                #print(f" He recibido del cliente [{addr}] el mensaje: {msg}")
+                conn.send(f"Soy el servidor y he recibido tu mensaje: {msg} ".encode(FORMAT))
+        #print("ADIOS. TE ESPERO EN OTRA OCASION")
+        conn.close()
         
-######################### MAIN ##########################
+    def start():
+        server.listen()
+        #print(f"[LISTENING] Servidor a la escucha en {SERVER}")
+        CONEX_ACTIVAS = threading.active_count()-1
+        #print(CONEX_ACTIVAS)
 
-server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server.bind(ADDR)
-start()
+        while True:
+            conn, addr = server.accept()
+            CONEX_ACTIVAS = threading.active_count()
+
+            if (CONEX_ACTIVAS <= MAX_CONEXIONES): 
+                thread = threading.Thread(target=handle_client, args=(conn, addr))
+                thread.start()
+                #print(f"[CONEXIONES ACTIVAS] {CONEX_ACTIVAS}")
+                #print("CONEXIONES RESTANTES PARA CERRAR EL SERVICIO", MAX_CONEXIONES-CONEX_ACTIVAS)
+            else:
+                #print("OOppsss... DEMASIADAS CONEXIONES. ESPERANDO A QUE ALGUIEN SE VAYA")
+                conn.send("Demasiadas conexiones. Tendrás que esperar a que alguien se vaya".encode(FORMAT))
+                conn.close()
+                CONEX_ACTUALES = threading.active_count()-1
+            
+    ######################### MAIN ##########################
+
+    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server.bind(ADDR)
+    start()
+
+else:
+    print ("Parece que algo falló. Necesito estos argumentos para el AA_Registry: <Puerto>")

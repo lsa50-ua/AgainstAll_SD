@@ -1,12 +1,10 @@
 import random
 import socket
-from ssl import _PasswordType
 import sys
-from telnetlib import EC
 from Posicion import *
 
 HEADER = 64
-PORT = 5050
+#PORT = 5050
 FORMAT = 'utf-8'
 
 #Clase que define a los jugadores de la partida
@@ -81,7 +79,7 @@ if (len(sys.argv) == 5):
     EC=jugador.obtenerEC()
     EF=jugador.obtenerEF()
 
-    msg = ALIAS + ":" + PASSWORD + ":" + NIVEL + ":" + EC + ":" + EF
+    msg = ALIAS + ":" + PASSWORD + ":" + repr(NIVEL) + ":" + repr(EC) + ":" + repr(EF)
 
     send(msg)
 
@@ -89,7 +87,7 @@ if (len(sys.argv) == 5):
     #send("FIN")
     client.close()
 else:
-    print ("Parece que algo falló. Necesito estos argumentos: <ServerIP> <Puerto> <ALIAS> <PASSWORD>")
+    print ("Parece que algo falló. Necesito estos argumentos para el Jugador: <ServerIP> <Puerto> <ALIAS> <PASSWORD>")
 
 
 #para pillar las teclas del jugador usamos en python, msvrct.getch()decode(FORMAT)

@@ -1,4 +1,4 @@
-import Jugador
+from Jugador import *
 import random
 
 class Mapa:
