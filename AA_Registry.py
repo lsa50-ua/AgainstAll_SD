@@ -32,7 +32,10 @@ if (len(sys.argv) == 2):
                 msg = conn.recv(msg_length).decode(FORMAT)
                 parametros = msg.split(":")
 
-                if len(parametros) == 5:
+                if msg == "FIN":
+                    connected = False
+
+                elif len(parametros) == 5:
                     ALIAS = parametros[0]
                     PASSWORD = parametros[1]
                     NIVEL = parametros[2]
@@ -40,18 +43,25 @@ if (len(sys.argv) == 2):
                     EF = parametros[4]
 
                     f = open('Registro.txt','a')    # 'a' significa que escribimos en un fichero ya creado
-                    f.write('\n' + 'Alias: '+ALIAS + '   Contraseña: ' + PASSWORD + '   Nivel: ' + NIVEL + '   EC: ' + EC + '   EF: ' + EF)    # '\n' para escribir en un línea abajo
+                    f.write('\n' + 'Alias: '+ ALIAS + '   Contraseña: ' + PASSWORD + '   Nivel: ' + NIVEL + '   EC: ' + EC + '   EF: ' + EF)    # '\n' para escribir en un línea abajo
                     f.close()
 
                     print("El jugador '"+ ALIAS + "' se ha registrado para la partida.")
 
-                    connected = False
+                elif len(parametros) == 3:
+                    if parametros[2] == "alias":
+                        print("Se va a cambiar el alias")
 
-                #if msg == FIN:
-                    #connected = False
-                #print(f" He recibido del cliente [{addr}] el mensaje: {msg}")
-                conn.send(f"Soy el servidor y he recibido tu mensaje: {msg} ".encode(FORMAT))
-        #print("ADIOS. TE ESPERO EN OTRA OCASION")
+                    elif parametros[2] == "contraseña":
+                        print("Se va a cambiar la contraseña")
+                    
+                    else:
+                        print("soy gay")
+
+                else:
+                    connected = True
+
+        print("Adios.")
         conn.close()
         
     def start():
