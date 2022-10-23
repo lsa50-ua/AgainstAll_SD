@@ -4,8 +4,8 @@ import socket
 import sys
 from Posicion import *
 
-HEADER = 64
 #PORT = 5050
+HEADER = 64
 FORMAT = 'utf-8'
 
 # Clase que define a los jugadores de la partida
@@ -50,7 +50,7 @@ class Jugador:
     def vivoMuerto(self):
         return self.muerto
 
-# Función que manda los mensajes del cliente al servidor
+# Función que manda los mensajes del Jugador al Registry
 def sendRegistry(msg):
     message = msg.encode(FORMAT)
     msg_length = len(message)
@@ -58,8 +58,6 @@ def sendRegistry(msg):
     send_length += b' ' * (HEADER - len(send_length))
     clientRegistry.send(send_length)
     clientRegistry.send(message)
-
-# HAY QUE DECIR EN EL INICIO DE LA PARTIDA, QUE TIENEN QUE PONER X PARÁMETROS    
 
 # Main
 if (len(sys.argv) == 7):
@@ -116,42 +114,52 @@ if (len(sys.argv) == 7):
             print("¿Qué parámetro quieres cambiar?: ")
             print("Alias (1)")
             print("Contraseña (2)")
-            parametro = int(input())
-            print("")
 
-            if parametro == 1: 
-                print("Por favor seleccione el alias actual (si no existe no se podrá realizar el cambio): ")
-                actualAlias = input()
+            try:
+                parametro = int(input())
                 print("")
 
-                print("Por favor seleccione el nuevo alias: ")
-                nuevoAlias = input()
-                print("")
+                if parametro == 1: 
+                    print("Por favor seleccione el alias actual: ")
+                    actualAlias = input()
+                    print("")
 
-                msg = actualAlias + ":" + nuevoAlias + ":" + "alias"
+                    print("Por favor seleccione la contraseña actual: ")
+                    actualContraseña = input()
+                    print("")
 
-                sendRegistry(msg)
+                    print("Por favor seleccione el nuevo alias: ")
+                    nuevoAlias = input()
+                    print("")
 
-                print("Se ha cambiado el alias a: " + nuevoAlias)                    
+                    msg = actualAlias + ":" + nuevoAlias + ":" + "alias" + ":" + actualContraseña 
 
-            elif parametro == 2:
-                print("Por favor seleccione el alias actual (si no existe no se podrá realizar el cambio): ")
-                actualAlias = input()
-                print("")
-                
-                print("Por favor seleccione la nueva contraseña: ")
-                nuevaContraseña = input()
-                print("")
+                    sendRegistry(msg)
 
-                msg = actualAlias + ":" + nuevaContraseña + ":" + "contraseña"
+                    print("Se ha cambiado el alias a: " + nuevoAlias)                    
 
-                sendRegistry(msg)
-
-                print("Se ha cambiado la contraseña a: " + nuevaContraseña)
+                elif parametro == 2:
+                    print("Por favor seleccione el alias actual (si no existe no se podrá realizar el cambio): ")
+                    actualAlias = input()
+                    print("")
                     
-            else:
-                bucle = False
-                print("Parametro desconocido. Termina la conexión.")
+                    print("Por favor seleccione la nueva contraseña: ")
+                    nuevaContraseña = input()
+                    print("")
+
+                    msg = actualAlias + ":" + nuevaContraseña + ":" + "contraseña"
+
+                    sendRegistry(msg)
+
+                    print("Se ha cambiado la contraseña a: " + nuevaContraseña)
+                        
+                else:
+                    bucle = False
+                    print("Parametro desconocido. Termina la conexión.")
+
+            except:
+                print("Por favor introduzca un caracter numérico.")
+                print("")
 
         elif seleccion == 4:
             bucle = False
@@ -167,11 +175,3 @@ if (len(sys.argv) == 7):
 
 else:
     print ("Parece que algo falló. Necesito estos argumentos para el Jugador: <Engine_IP> <Engine_Puerto> <GestorDeColas_IP> <GestorDeColas_Puerto> <Registry_IP> <Registry_Puerto>")
-
-
-#para pillar las teclas del jugador usamos en python, msvrct.getch()decode(FORMAT)
-# startime = time.time()
-# 
-# while True:
-#   msg = ""
-#   if  msvcrt SEGUIR CON LA FOTO DE LUIS

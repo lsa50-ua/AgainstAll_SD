@@ -43,14 +43,39 @@ if (len(sys.argv) == 2):
                     EF = parametros[4]
 
                     f = open('Registro.txt','a')    # 'a' significa que escribimos en un fichero ya creado
-                    f.write('\n' + 'Alias: '+ ALIAS + '   Contraseña: ' + PASSWORD + '   Nivel: ' + NIVEL + '   EC: ' + EC + '   EF: ' + EF)    # '\n' para escribir en un línea abajo
+                    f.write('\n' + 'ALIAS:'+ ALIAS + ' CONTRASEÑA:' + PASSWORD + ' NIVEL:' + NIVEL + ' EC:' + EC + ' EF:' + EF)    # '\n' para escribir en un línea abajo
                     f.close()
 
                     print("El jugador '"+ ALIAS + "' se ha registrado para la partida.")
 
-                elif len(parametros) == 3:
+                elif len(parametros) == 4:
+                    linea = 0
+
                     if parametros[2] == "alias":
                         print("Se va a cambiar el alias")
+
+                        f = open('Registro.txt')
+                        contenido = f.readlines()
+
+                        for i in range(1,len(contenido)):
+                            particion = contenido[i].split(" ")
+                            buscarAlias = particion[0].split(":")
+                            buscarContraseña = particion[1].split(":")
+
+                            if buscarAlias[1] == parametros[0] and buscarContraseña[1] == parametros[3]:
+                                linea = repr(i+1)
+
+                        f.close()
+                        
+                        if linea == 0:
+                            print("No se ha podido cambiar el alias, ya que el alias o la contraseña introducida son incorrectos.")
+                        else:
+                            #
+                            #
+                            #
+                            # CONTINUAR POR AQUÍ
+                        print("")
+
 
                     elif parametros[2] == "contraseña":
                         print("Se va a cambiar la contraseña")
@@ -68,7 +93,7 @@ if (len(sys.argv) == 2):
         server.listen()
         #print(f"[LISTENING] Servidor a la escucha en {SERVER}")
         CONEX_ACTIVAS = threading.active_count()-1
-        #print(CONEX_ACTIVAS)
+        #print("Conexiones activas: " + repr(CONEX_ACTIVAS))
 
         while True:
             conn, addr = server.accept()
@@ -80,7 +105,7 @@ if (len(sys.argv) == 2):
                 #print(f"[CONEXIONES ACTIVAS] {CONEX_ACTIVAS}")
                 #print("CONEXIONES RESTANTES PARA CERRAR EL SERVICIO", MAX_CONEXIONES-CONEX_ACTIVAS)
             else:
-                #print("OOppsss... DEMASIADAS CONEXIONES. ESPERANDO A QUE ALGUIEN SE VAYA")
+                print("OOppsss... DEMASIADAS CONEXIONES. ESPERANDO A QUE ALGUIEN SE VAYA")
                 conn.send("Demasiadas conexiones. Tendrás que esperar a que alguien se vaya".encode(FORMAT))
                 conn.close()
                 CONEX_ACTUALES = threading.active_count()-1

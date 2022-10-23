@@ -27,3 +27,12 @@ while seguir:
         seguir = False
     else:
         seguir = True
+
+
+
+#para pillar las teclas del jugador usamos en python, msvrct.getch()decode(FORMAT)
+# startime = time.time()
+# 
+# while True:
+#   msg = ""
+#   if  msvcrt SEGUIR CON LA FOTO DE LUIS

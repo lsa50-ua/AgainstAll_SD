@@ -1,1 +1,6 @@
 #Usuarios
+ALIAS:Caca CONTRASEÑA:pedo NIVEL:1 EC:6 EF:-2
+ALIAS:culo CONTRASEÑA:pis NIVEL:1 EC:7 EF:-7
+ALIAS:caca CONTRASEÑA:efwrefgerg NIVEL:1 EC:2 EF:-6
+ALIAS:hola CONTRASEÑA:adios NIVEL:1 EC:3 EF:10
+ALIAS:frgfr CONTRASEÑA:ergergerg NIVEL:1 EC:-10 EF:7
