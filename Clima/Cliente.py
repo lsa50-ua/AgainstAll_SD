@@ -10,21 +10,21 @@ obj = socket.socket()
 obj.connect((HOST, PORT))
 print("Conectado al servidor")
 
-fichero = open('Ciudades.txt', 'r')
-lineas = fichero.readlines()
+ficheroC = open('Ciudades.txt', 'r')
+lineasC = ficheroC.readlines()
 
 lista_climas = []
 i = 0
 while len(lista_climas) != 4:
     #Con el método send, enviamos el mensaje
-    obj.send(lineas[i].rstrip().encode('utf-8'))
+    obj.send(lineasC[i].rstrip().encode('utf-8'))
     #Cerramos la instancia del objeto servidor
     respuesta=obj.recv(4096)
     if respuesta.decode('utf-8') != "ERROR":
         lista_climas.append(respuesta.decode('utf-8'))
         i+=1
     else:
-        print("ERROR: La ciudad ",lineas[i].rsplit(), "no existe")
+        print("ERROR: La ciudad ",lineasC[i].rsplit(), "no existe")
         break
 obj.send("0".encode('utf-8'))
 
