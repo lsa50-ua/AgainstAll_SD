@@ -1,5 +1,4 @@
 import socket
-import random
 
 HOST = 'localhost'
 PORT = 8010
@@ -21,8 +20,16 @@ while True:
         else:
             fichero = open('BDClima.txt', 'r')
             lineas = fichero.readlines()
-            n = random.randint(0, len(lineas) - 1)
-            conexion.send(lineas[n].rstrip().encode('utf-8'))
+            marcador = False
+            for i in range(len(lineas)):
+                separador =lineas[i].split(sep=':')
+                if pet.decode() == separador[0]:
+                    linea = lineas[i]
+                    marcador = True
+            if(marcador == True):
+                conexion.send(linea.rstrip().encode('utf-8'))
+            else:
+                conexion.send("ERROR".encode('utf-8'))
     print("Finalizada conexion con el cliente")
     print("Servidor activo...")
     conexion.close()
