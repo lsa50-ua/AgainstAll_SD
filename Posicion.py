@@ -8,3 +8,9 @@ class Posicion:
     
     def getY(self):
         return self.y
+    
+    def addX(self,x):
+        self.x += x
+
+    def addY(self,y):
+        self.y += y
