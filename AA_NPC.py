@@ -2,22 +2,19 @@ import socket
 import random
 import sys
 from Posicion import *
+from kafka import KafkaProducer
+import msvcrt
+import time
 
-#CAMBIAR TODA LA CLASE, LA HE COPIADO DE LA CLASE JUGADOR
+
 #Clase que define a los NPCs de la partida
 class NPC:
     def __init__ (self):
         self.posicion = Posicion(random.randint(1,20),random.randint(1,20))
-        self.nivel = 1
+        self.nivel = random.randint(1, 10)
         self.muerto = False
 
     #Decrementa en una cierta cantidad el nivel del jugador
-    def decrementarNivel(self, cantidad):
-        self.nivel -= cantidad
-
-        #El nivel mínimo es 0
-        if self.nivel < 0:
-            self.nivel = 0
     
     def obtenerNivel(self):
         return self.nivel
@@ -28,29 +25,52 @@ class NPC:
     def vivoOmuerto(self):
         return self.muerto
 
-if (len(sys.argv) == 3):
-    IP = sys.argv[1]
-    PUERTO = int(sys.argv[2])
-    ADDR = (IP,PUERTO)
+if (len(sys.argv) == 2):
+    bootstrap_servers = [sys.argv[1]]
+    try:
+        producer = KafkaProducer(bootstrap_servers = bootstrap_servers)
+    except:
+        print("ERROR en el parametro pasado. Saliendo...")
+        sys.exit()
+    identificador = str(random.randint(1,10)*random.randint(1,10)*random.randint(1,10))
+    msg = "NPC" + ":" + identificador
+    producer.send('Players', msg.encode('utf-8'))
+
+    start = time.time()
+    timeout = 120
+    while 1:
+        if time.time() - start > timeout:
+            number = random.randint(1, 8)
+            if(number == 1):
+                producer.send('Players', b'a')
             
-    client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    client.connect(ADDR)
-    #print (f"Establecida conexión en [{ADDR}]")
+            if(number == 2):
+                producer.send('Players', b'w')
+            
+            if(number == 3):
+                producer.send('Players', b's')
+            
+            if(number == 4):
+                producer.send('Players', b'd')
+            
+            if(number == 5):
+                producer.send('Players', b'q')
+            
+            if(number == 6):
+                producer.send('Players', b'e')
+            
+            if(number == 7):
+                producer.send('Players', b'z')
+            
+            if(number == 8):
+                producer.send('Players', b'c')
+            
+            
+            #metadata = ack.get()
 
-    ALIAS=sys.argv[3]
-    PASSWORD=sys.argv[4]
-
-    jugador = Jugador()
-    jugador.asignarAlias(ALIAS)
-
-    NIVEL=jugador.obtenerNivel()
-    EC=jugador.obtenerEC()
-    EF=jugador.obtenerEF()
-
-    msg = ALIAS + ":" + PASSWORD + ":" + repr(NIVEL) + ":" + repr(EC) + ":" + repr(EF)
-
-    #print("Envio al servidor: ", FIN)
-    #send("FIN")
-    client.close()
+            time.sleep(1)
+        else:
+            break
+    
 else:
-    print ("Parece que algo falló. Necesito estos argumentos para el NPC: <GestorDeColas_IP> <GestorDeColas_Puerto>")
+    print ("Parece que algo falló. Necesito este argumento para el NPC: <Bootstrap-server del gestor de colas>")
