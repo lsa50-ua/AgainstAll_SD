@@ -1,13 +1,15 @@
 import sys
 import socket
 import threading
+import random
 
 FORMAT = 'utf-8'
+HEADER = 64
 SERVER = socket.gethostbyname(socket.gethostname())
 
 if (len(sys.argv) == 7):
     PUERTO = int(sys.argv[1])
-    MAX_CONEXIONES = int(sys.argv[2])
+    MAX_CONEXIONES = int(sys.argv[2])     # Número máximo de jugadores que se puede conectar a la partida
 
     WEATHER_IP = sys.argv[3]
     WEATHER_PUERTO = int(sys.argv[4])
@@ -18,6 +20,122 @@ if (len(sys.argv) == 7):
     GESTOR_ADDR = (GESTOR_IP,GESTOR_PUERTO)
 
     ADDR_ESCUCHAR = (SERVER,PUERTO)
+
+    def handle_client(conn,addr):
+        print(f"[NUEVA CONEXION] {addr} connected.")
+
+        connected = True
+
+        try:
+            while connected:
+                msg_length = conn.recv(HEADER).decode(FORMAT)
+
+                if msg_length:
+                    msg_length = int(msg_length)
+                    msg = conn.recv(msg_length).decode(FORMAT)
+                    parametros = msg.split(":")
+
+                    if msg == "FIN":
+                        connected = False
+
+                    elif len(parametros) == 2:
+                        ALIAS = parametros[0]
+                        PASSWORD = parametros[1]
+
+                        encontrado = False
+                        distintoDe0 = False
+
+                        with open("Registro.txt", "r") as f:
+                            lines = f.readlines()
+                            lines.pop(0)
+
+                        for line in lines:
+                            particion = line.split(" ")
+                            buscarAlias = particion[0].split(":")
+                            buscarContraseña = particion[1].split(":")
+                            buscarTOKEN = particion[5].split(":")
+
+                            if buscarAlias[1] == ALIAS and buscarContraseña[1] == PASSWORD:
+                                encontrado = True  
+
+                                revisarToken = buscarTOKEN[1].replace('\n','')     
+
+                                if revisarToken != "0":
+                                    YATIENETOKEN = revisarToken
+                                    distintoDe0 = True
+
+                        if distintoDe0:
+                            info = "Tu usuario ya tiene un TOKEN asignado. El TOKEN -> " + repr(YATIENETOKEN)
+                            conn.send(info.encode(FORMAT))
+
+                        elif encontrado:
+                            previo = True
+                            estaElToken = False
+                            añadidoTOKEN = False
+
+                            while previo:
+                                TOKEN = random.randint(1,10000)
+
+                                with open("Registro.txt", "r") as f:
+                                    lines = f.readlines()
+                                    lines.pop(0)
+
+                                for line in lines:
+                                    particion = line.split(" ")
+                                    buscarTOKEN = particion[5].split(":")
+
+                                    if buscarTOKEN[1] == TOKEN:
+                                        estaElToken = True  
+                                
+                                if estaElToken == False:
+                                    previo = False
+
+                            with open("Registro.txt", "r") as f:
+                                lines = f.readlines()
+                                lines.pop(0)
+
+                            with open("Registro.txt", "w") as f:
+                                f.write("#Usuarios"+'\n')
+
+                                for line in lines:
+                                    particion = line.split(" ")
+                                    buscarAlias = particion[0].split(":")
+                                    buscarContraseña = particion[1].split(":")
+
+                                    if buscarAlias[1] == ALIAS and buscarContraseña[1] == PASSWORD:
+                                        buscarNivel = particion[2].split(":")
+                                        buscarEC = particion[3].split(":")
+                                        buscarEF = particion[4].split(":")
+
+                                        f.write('ALIAS:' + buscarAlias[1] + ' CONTRASEÑA:' + buscarContraseña[1] + ' NIVEL:' + buscarNivel[1] + ' EC:' + buscarEC[1] + ' EF:' + buscarEF[1] + ' TOKEN:' + repr(TOKEN) + '\n')
+
+                                        print("")
+                                        print("El jugador '" + buscarAlias[1] + "' ha se ha unido a la partida con el TOKEN-" + repr(TOKEN) + ".")
+                                        mensaje = "Se te ha asignado el TOKEN -> '" + repr(TOKEN) + "'"
+                                        conn.send(mensaje.encode(FORMAT))
+                                        añadidoTOKEN = True
+                                        
+                                    else:
+                                        f.write(line)    
+
+                            if añadidoTOKEN == False:
+                                conn.send("El usuario introducido no existe en la BBDD.".encode(FORMAT))
+
+                        else:
+                            conn.send("El usuario introducido no existe en la BBDD.".encode(FORMAT))
+
+                    else:
+                        connected = True
+            
+            print("")
+            print(f"Cerrada la conexión en: {addr} ")
+            print("")
+            conn.close()
+
+        except:
+            print("")
+            print(f"Se ha forzado la conexión y ha terminado en: {addr} ")
+            conn.close()
 
     def start():
         server.listen()
@@ -53,16 +171,3 @@ if (len(sys.argv) == 7):
 
 else:
     print ("Parece que algo falló. Necesito estos argumentos para el Jugador: <Puerto_Escucha> <MAX_Jugadores> <Weather_IP> <Weather_Puerto> <GestorDeColas_IP> <GestorDeColas_Puerto>")
-
-
-
-
-
-
-
-    #para pillar las teclas del jugador usamos en python, msvrct.getch()decode(FORMAT)
-    # startime = time.time()
-    # 
-    # while True:
-    #   msg = ""
-    #   if  msvcrt SEGUIR CON LA FOTO DE LUIS

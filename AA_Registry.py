@@ -28,7 +28,6 @@ if (len(sys.argv) == 2):
                     if msg == "FIN":
                         connected = False
 
-
                     elif len(parametros) == 5:
                         ALIAS = parametros[0]
                         PASSWORD = parametros[1]
@@ -51,7 +50,7 @@ if (len(sys.argv) == 2):
                         
                         if cambiar == True:
                             f = open('Registro.txt','a')    # 'a' significa "append" y nos permite escribir en un fichero ya creado
-                            f.write('\n' + 'ALIAS:'+ ALIAS + ' CONTRASEÑA:' + PASSWORD + ' NIVEL:' + NIVEL + ' EC:' + EC + ' EF:' + EF)    # '\n' para escribir en un línea abajo
+                            f.write('\n' + 'ALIAS:'+ ALIAS + ' CONTRASEÑA:' + PASSWORD + ' NIVEL:' + NIVEL + ' EC:' + EC + ' EF:' + EF + ' TOKEN:' + repr(0))    # '\n' para escribir en un línea abajo
                             f.close()
 
                             print("")
@@ -81,8 +80,9 @@ if (len(sys.argv) == 2):
                                         buscarNivel = particion[2].split(":")
                                         buscarEC = particion[3].split(":")
                                         buscarEF = particion[4].split(":")
+                                        buscarTOKEN = particion[5].split(":")
 
-                                        f.write('ALIAS:' + buscarAlias[1] + ' CONTRASEÑA:' + buscarContraseña[1] + ' NIVEL:' + buscarNivel[1] + ' EC:' + parametros[1] + ' EF:' + buscarEF[1])
+                                        f.write('ALIAS:' + buscarAlias[1] + ' CONTRASEÑA:' + buscarContraseña[1] + ' NIVEL:' + buscarNivel[1] + ' EC:' + parametros[1] + ' EF:' + buscarEF[1] + ' TOKEN:' + buscarTOKEN[1])
 
                                         print("")
                                         print("El jugador '" + buscarAlias[1] + "' se ha cambiado correctamente el EC.")
@@ -114,8 +114,9 @@ if (len(sys.argv) == 2):
                                         buscarNivel = particion[2].split(":")
                                         buscarEC = particion[3].split(":")
                                         buscarEF = particion[4].split(":")
+                                        buscarTOKEN = particion[5].split(":")
 
-                                        f.write('ALIAS:' + buscarAlias[1] + ' CONTRASEÑA:' + buscarContraseña[1] + ' NIVEL:' + buscarNivel[1] + ' EC:' + buscarEC[1] + ' EF:' + parametros[1] + '\n')
+                                        f.write('ALIAS:' + buscarAlias[1] + ' CONTRASEÑA:' + buscarContraseña[1] + ' NIVEL:' + buscarNivel[1] + ' EC:' + buscarEC[1] + ' EF:' + parametros[1] + ' TOKEN:' + buscarTOKEN[1])
 
                                         print("")
                                         print("El jugador '" + buscarAlias[1] + "' se ha cambiado correctamente el EF.")
@@ -147,8 +148,9 @@ if (len(sys.argv) == 2):
                                         buscarNivel = particion[2].split(":")
                                         buscarEC = particion[3].split(":")
                                         buscarEF = particion[4].split(":")
+                                        buscarTOKEN = particion[5].split(":")
 
-                                        f.write('ALIAS:' + buscarAlias[1] + ' CONTRASEÑA:' + parametros[1] + ' NIVEL:' + buscarNivel[1] + ' EC:' + buscarEC[1] + ' EF:' + buscarEF[1])
+                                        f.write('ALIAS:' + buscarAlias[1] + ' CONTRASEÑA:' + parametros[1] + ' NIVEL:' + buscarNivel[1] + ' EC:' + buscarEC[1] + ' EF:' + buscarEF[1] + ' TOKEN:' + buscarTOKEN[1])
 
                                         print("")
                                         print("El jugador '" + buscarAlias[1] + "' se ha cambiado correctamente la contraseña.")
@@ -170,12 +172,13 @@ if (len(sys.argv) == 2):
             
             print("")
             print(f"Cerrada la conexión en: {addr} ")
-            conn.send("Registry ha cerrado la conexión. Hasta luego.".encode(FORMAT))
+            print("")
             conn.close()
 
         except:
             print("")
             print(f"Se ha forzado la conexión y ha terminado en: {addr} ")
+            print("")
             conn.close()
         
     def start():

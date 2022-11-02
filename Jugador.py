@@ -47,20 +47,20 @@ class Jugador:
     def vivoMuerto(self):
         return self.muerto
 
-# Función que manda los mensajes del Jugador al Registry
-def sendRegistry(msg):
+# Función que manda los mensajes del Consumidor al Productor
+def send(msg,client):
     message = msg.encode(FORMAT)
     msg_length = len(message)
     send_length = str(msg_length).encode(FORMAT)
     send_length += b' ' * (HEADER - len(send_length))
-    clientRegistry.send(send_length)
-    clientRegistry.send(message)
+    client.send(send_length)
+    client.send(message)
 
 def menu():
     print("¿Qué quieres hacer ahora?")
     print("Crear perfil (1)")
     print("Editar perfil (2)")     
-    print("Unirse a partida (3)")     # terminar
+    print("Unirse a partida (3)") 
     print("Salir (4)")
     print("")
 
@@ -71,7 +71,6 @@ def editar():
     print("Contraseña (3)")
     print("")
 
-# Main
 if (len(sys.argv) == 7):
     ENGINE_IP = sys.argv[1]
     ENGINE_PUERTO = int(sys.argv[2])
@@ -85,12 +84,8 @@ if (len(sys.argv) == 7):
     REGISTRY_PUERTO = int(sys.argv[6])
     REGISTRY_ADDR = (REGISTRY_IP, REGISTRY_PUERTO)
             
-    #clientEngine = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     #clientGestor = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    clientRegistry = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    #clientEngine.connect(ENGINE_ADDR)
     #clientGestor.connect(GESTOR_ADDR)
-    clientRegistry.connect(REGISTRY_ADDR)
     
     bucle = True
 
@@ -103,32 +98,43 @@ if (len(sys.argv) == 7):
             print("")
 
             if seleccion == 1:
-                alias = input("Por favor introduzca un alias de hasta 20 carácteres: ")
+                clientRegistryCrear = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                clientRegistryCrear.connect(REGISTRY_ADDR)
 
-                if len(alias) <= 20:
-                    contraseña = input("Por favor introduzca una contraseña: ")
+                alias = input("Por favor introduzca un alias de hasta 20 carácteres: ")   
+                aliasLimpio = alias.replace(' ','')
+
+                if len(aliasLimpio) <= 20:
+                    contraseña = input("Por favor introduzca una contraseña: ")     # No hace falta comprobar si es una contraseña númerica, ya que se pasa directamente a string (sea númerica o no)
+                    contraseñaLimpia = contraseña.replace(' ','')     
                     print("")
 
                     jugador = Jugador()
-                    jugador.asignarAlias(alias)
+                    jugador.asignarAlias(aliasLimpio)
 
                     nivel=jugador.obtenerNivel()
                     ec=jugador.obtenerEC()
                     ef=jugador.obtenerEF()
 
-                    msg = alias + ":" + contraseña + ":" + repr(nivel) + ":" + repr(ec) + ":" + repr(ef)
+                    msg = aliasLimpio + ":" + contraseñaLimpia + ":" + repr(nivel) + ":" + repr(ec) + ":" + repr(ef)
 
-                    sendRegistry(msg)
+                    send(msg,clientRegistryCrear)
 
-                    print(clientRegistry.recv(2048).decode(FORMAT))
+                    print(clientRegistryCrear.recv(2048).decode(FORMAT))
                     print("")
 
                 else:
                     print("")
                     print("El alias debe tener 20 carácteres o menos. Intentelo de nuevo.")
                     print("")
+
+                send("FIN",clientRegistryCrear)
+                clientRegistryCrear.close()
             
             elif seleccion == 2:
+                clientRegistryEditar = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                clientRegistryEditar.connect(REGISTRY_ADDR)
+
                 editar()
 
                 try:
@@ -137,70 +143,108 @@ if (len(sys.argv) == 7):
 
                     if parametro == 1: 
                         actualAlias = input("Por favor seleccione el alias actual: ")
+                        aliasLimpio = actualAlias.replace(' ','')
                         actualContraseña = input("Por favor seleccione la contraseña actual: ")
+                        contraseñaLimpia = actualContraseña.replace(' ','')
                         nuevoEC = int(input("Por favor seleccione el nuevo valor EC (de -10 a 10): "))
                         print("")
 
                         if nuevoEC >= -10 and nuevoEC <= 10:
-                            msg = actualAlias + ":" + repr(nuevoEC) + ":" + "ec" + ":" + actualContraseña 
+                            msg = aliasLimpio + ":" + repr(nuevoEC) + ":" + "ec" + ":" + contraseñaLimpia 
 
-                            sendRegistry(msg)
+                            send(msg,clientRegistryEditar)
 
-                            print(clientRegistry.recv(2048).decode(FORMAT))
+                            print(clientRegistryEditar.recv(2048).decode(FORMAT))
                             print("")
 
                         else:
                             print("Por favor el nuevo valor de EC debe estar en el rango [-10,10]. Intentelo de nuevo.")
                             print("")
+                        
+                        send("FIN",clientRegistryEditar)
+                        clientRegistryEditar.close()
 
                     elif parametro == 2: 
                         actualAlias = input("Por favor seleccione el alias actual: ")
+                        aliasLimpio = actualAlias.replace(' ','')
                         actualContraseña = input("Por favor seleccione la contraseña actual: ")
+                        contraseñaLimpia = actualContraseña.replace(' ','')
                         nuevoEF = int(input("Por favor seleccione el nuevo valor EF (de -10 a 10): "))
                         print("")
 
                         if nuevoEF >= -10 and nuevoEF <= 10:
-                            msg = actualAlias + ":" + repr(nuevoEF) + ":" + "ef" + ":" + actualContraseña 
+                            msg = aliasLimpio + ":" + repr(nuevoEF) + ":" + "ef" + ":" + contraseñaLimpia 
 
-                            sendRegistry(msg)
+                            send(msg,clientRegistryEditar)
 
-                            print(clientRegistry.recv(2048).decode(FORMAT))
+                            print(clientRegistryEditar.recv(2048).decode(FORMAT))
                             print("") 
 
                         else:
                             print("Por favor el nuevo valor de EF debe estar en el rango [-10,10]. Intentelo de nuevo.")
-                            print("")       
+                            print("") 
+
+                        send("FIN",clientRegistryEditar)
+                        clientRegistryEditar.close()  
 
                     elif parametro == 3:
                         actualAlias = input("Por favor seleccione el alias actual: ")
+                        aliasLimpio = actualAlias.replace(' ','')
                         actualContraseña = input("Por favor seleccione la contraseña actual: ")
+                        contraseñaLimpia = actualContraseña.replace(' ','')
                         nuevaContraseña = input("Por favor seleccione la nueva contraseña: ")
+                        nuevaContraseñaLimpia = nuevaContraseña.replace(' ','')
                         print("")
 
-                        msg = actualAlias + ":" + nuevaContraseña + ":" + "c" + ":" + actualContraseña 
+                        msg = aliasLimpio + ":" + nuevaContraseñaLimpia + ":" + "c" + ":" + contraseñaLimpia 
 
-                        sendRegistry(msg)
+                        send(msg,clientRegistryEditar)
 
-                        print(clientRegistry.recv(2048).decode(FORMAT))
+                        print(clientRegistryEditar.recv(2048).decode(FORMAT))
                         print("")
+
+                        send("FIN",clientRegistryEditar)
+                        clientRegistryEditar.close()
                             
                     else:
                         print("Parametro desconocido.")
                         print("")
 
+                        send("FIN",clientRegistryEditar)
+                        clientRegistryEditar.close()
+
                 except:
                     print("Por favor introduzca un caracter numérico.")
                     print("")
 
+                    send("FIN",clientRegistryEditar)
+                    clientRegistryEditar.close()
+
             elif seleccion == 3:
+                clientEngine = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                clientEngine.connect(ENGINE_ADDR)
+
                 alias = input("Por favor introduzca tu alias: ")
+                aliasLimpio = alias.replace(' ','')
                 contraseña = input("Por favor introduzca tu contraseña: ")
+                contraseñaLimpia = contraseña.replace(' ','')
                 print("")
+
+                msg = aliasLimpio + ":" + contraseñaLimpia
+
+                send(msg,clientEngine)
+
+                print(clientEngine.recv(2048).decode(FORMAT))
+                print("")
+
+                send("FIN",clientEngine)
+                clientEngine.close()
+
                 ### TERMINAR ###
                 # 1- El player se conecta al engine y le pasa su alias y su password.
                 # 2- El engine consulta en la BD si ese Player existe y su password es correcta.
-                # 3- Caso que sea así le devuelve por el mismo socket que previamente se abrió. un token (que puedes expresar como un simple número aleatorio o hash ). Este token es como una "entrada de cine", una autorización que le vale SOLO PARA ESE PLAYER y esa partida.
-                # 4- El player se conectará a partir de ese momento a Kafka y cada vez que envie un mensaje como productor, enviará en el mismo mensaje ese token (número) además de la información que quieras enviar (como la tecla pulsada).
+                # 3- Caso que sea así le devuelve por el mismo socket que previamente se abrió. un token (un número aleatorio). Este token es como una "entrada de cine", una autorización que le vale SOLO PARA ESE PLAYER y esa partida.
+                # VOY POR AQUÍ     4- El player se conectará a partir de ese momento a Kafka y cada vez que envie un mensaje como productor, enviará en el mismo mensaje ese token (número) además de la información que quieras enviar (como la tecla pulsada).
                 # 5- El engine, leerá el mensaje y validará que ese token existe. De esta manera habrá validado que puede procesar el mensaje y procederá a dicho procesamiento.
 
             elif seleccion == 4:
@@ -211,15 +255,9 @@ if (len(sys.argv) == 7):
                 print("")
                 bucle = True
 
-        sendRegistry("FIN")
-        print(clientRegistry.recv(2048).decode(FORMAT))
-        print("")
-        clientRegistry.close()
-
     except:
-        print(f"El servidor ha forzado la conexión y ha terminado.")
+        print("El servidor ha forzado la conexión y ha terminado.")
         print("")
-        clientRegistry.close()
 
 else:
     print ("Parece que algo falló. Necesito estos argumentos para el Jugador: <Engine_IP> <Engine_Puerto> <GestorDeColas_IP> <GestorDeColas_Puerto> <Registry_IP> <Registry_Puerto>")

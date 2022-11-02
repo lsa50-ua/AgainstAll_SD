@@ -1,5 +1,8 @@
 # Código para imprimir el tablero sacado de -> http://programarcadegames.com/index.php?lang=es&chapter=array_backed_grids
 
+# HAY QUE HACER QUE EL MAPA LO IMPRIMA LA CLASE JUGADOR (CREO)
+# CAMBIAR LO DE QUE HAYAN DOS PANTALLAS
+
 from Posicion import *
 import random
 import pygame
@@ -52,7 +55,7 @@ for fila in range(20):
 # Colocamos de manera aleatroria las minas y la comida
 for fila in range(20):
     for columna in range(20):
-        n = random.randint(0,20)
+        n = random.randint(0,16)
 
         if n == 8:
             tablero[fila][columna] = 'M'
