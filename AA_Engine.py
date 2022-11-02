@@ -7,6 +7,10 @@ FORMAT = 'utf-8'
 HEADER = 64
 SERVER = socket.gethostbyname(socket.gethostname())
 
+def menuPrincipal():
+    print("Nueva partida (1)")
+    print("Salir (2)")
+
 if (len(sys.argv) == 7):
     PUERTO = int(sys.argv[1])
     MAX_CONEXIONES = int(sys.argv[2])     # Número máximo de jugadores que se puede conectar a la partida
@@ -164,10 +168,32 @@ if (len(sys.argv) == 7):
 
     print("")
     print("Iniciando Engine.")
+    print("")
 
-    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server.bind(ADDR_ESCUCHAR)
-    start()
+    seguir = True
+
+    try:
+        while seguir:
+            menuPrincipal()
+
+            eleccion = int(input("Por favor introduzca la eleccion: "))
+            print("")
+
+            if eleccion == 1:
+                server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                server.bind(ADDR_ESCUCHAR)
+                start()
+
+            elif eleccion == 2:
+                seguir = False
+            
+            else:
+                print("Introduce una opción correcta.")
+                print("")
+    except:
+            print("")
+            print("Por favor introduzca un carácter númerico.")
+            print("")
 
 else:
     print ("Parece que algo falló. Necesito estos argumentos para el Jugador: <Puerto_Escucha> <MAX_Jugadores> <Weather_IP> <Weather_Puerto> <GestorDeColas_IP> <GestorDeColas_Puerto>")

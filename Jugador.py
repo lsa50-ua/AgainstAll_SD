@@ -237,6 +237,12 @@ if (len(sys.argv) == 7):
                 print(clientEngine.recv(2048).decode(FORMAT))
                 print("")
 
+                print(clientEngine.recv(2048).decode(FORMAT))     # Se queda esperando a recibir el mensaje de que va a empezar la partida
+
+                ##
+                ## CONTINUAR
+                ##
+
                 send("FIN",clientEngine)
                 clientEngine.close()
 
