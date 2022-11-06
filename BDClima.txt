@@ -1,0 +1,7 @@
+Alicante:26
+Londres:5
+Sydney:32
+Wisconsin:-15
+Copenhaghe:-10
+Amsterdam:10
+Madrid:20

@@ -231,25 +231,26 @@ if (len(sys.argv) == 6):
                 msg = aliasLimpio + ":" + contraseñaLimpia
 
                 send(msg,clientEngine)
-
-                print(clientEngine.recv(2048).decode(FORMAT))
+                existe = clientEngine.recv(2048).decode(FORMAT)
+                print(existe)
                 print("")
+                if existe != "El usuario introducido no existe en la BBDD.":
+                    send("ESPERA", clientEngine)
+                    print(clientEngine.recv(2048).decode(FORMAT))     # Se queda esperando a recibir el mensaje de que va a empezar la partida
 
-                print(clientEngine.recv(2048).decode(FORMAT))     # Se queda esperando a recibir el mensaje de que va a empezar la partida
+                    ##
+                    ## CONTINUAR
+                    ##
 
-                ##
-                ## CONTINUAR
-                ##
+                    #send("FIN",clientEngine)
+                    #clientEngine.close()
 
-                send("FIN",clientEngine)
-                clientEngine.close()
-
-                ### TERMINAR ###
-                # 1- El player se conecta al engine y le pasa su alias y su password.
-                # 2- El engine consulta en la BD si ese Player existe y su password es correcta.
-                # 3- Caso que sea así le devuelve por el mismo socket que previamente se abrió. un token (un número aleatorio). Este token es como una "entrada de cine", una autorización que le vale SOLO PARA ESE PLAYER y esa partida.
-                # VOY POR AQUÍ     4- El player se conectará a partir de ese momento a Kafka y cada vez que envie un mensaje como productor, enviará en el mismo mensaje ese token (número) además de la información que quieras enviar (como la tecla pulsada).
-                # 5- El engine, leerá el mensaje y validará que ese token existe. De esta manera habrá validado que puede procesar el mensaje y procederá a dicho procesamiento.
+                    ### TERMINAR ###
+                    # 1- El player se conecta al engine y le pasa su alias y su password.
+                    # 2- El engine consulta en la BD si ese Player existe y su password es correcta.
+                    # 3- Caso que sea así le devuelve por el mismo socket que previamente se abrió. un token (un número aleatorio). Este token es como una "entrada de cine", una autorización que le vale SOLO PARA ESE PLAYER y esa partida.
+                    # VOY POR AQUÍ     4- El player se conectará a partir de ese momento a Kafka y cada vez que envie un mensaje como productor, enviará en el mismo mensaje ese token (número) además de la información que quieras enviar (como la tecla pulsada).
+                    # 5- El engine, leerá el mensaje y validará que ese token existe. De esta manera habrá validado que puede procesar el mensaje y procederá a dicho procesamiento.
 
             elif seleccion == 4:
                 bucle = False
