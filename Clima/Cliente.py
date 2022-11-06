@@ -12,7 +12,7 @@ print("Conectado al servidor")
 
 ficheroC = open('Ciudades.txt', 'r')
 lineasC = ficheroC.readlines()
-
+ficheroC.close()
 lista_climas = []
 i = 0
 while len(lista_climas) != 4:

@@ -6,12 +6,13 @@ import random
 FORMAT = 'utf-8'
 HEADER = 64
 SERVER = socket.gethostbyname(socket.gethostname())
+bootstrap_servers = ['localhost:9092']
 
 def menuPrincipal():
     print("Nueva partida (1)")
     print("Salir (2)")
 
-if (len(sys.argv) == 7):
+if (len(sys.argv) == 5):
     PUERTO = int(sys.argv[1])
     MAX_CONEXIONES = int(sys.argv[2])     # Número máximo de jugadores que se puede conectar a la partida
 
@@ -19,9 +20,6 @@ if (len(sys.argv) == 7):
     WEATHER_PUERTO = int(sys.argv[4])
     WEATHER_ADDR = (WEATHER_IP,WEATHER_PUERTO)
 
-    GESTOR_IP = sys.argv[5]
-    GESTOR_PUERTO = int(sys.argv[6])
-    GESTOR_ADDR = (GESTOR_IP,GESTOR_PUERTO)
 
     ADDR_ESCUCHAR = (SERVER,PUERTO)
 

@@ -71,17 +71,15 @@ def editar():
     print("Contraseña (3)")
     print("")
 
-if (len(sys.argv) == 7):
+if (len(sys.argv) == 6):
     ENGINE_IP = sys.argv[1]
     ENGINE_PUERTO = int(sys.argv[2])
     ENGINE_ADDR = (ENGINE_IP, ENGINE_PUERTO)
 
-    GESTOR_IP = sys.argv[3]
-    GESTOR_PUERTO = int(sys.argv[4])
-    GESTOR_ADDR = (GESTOR_IP, GESTOR_PUERTO)
+    GESTOR_BOOTSTRAP_SERVER  = sys.argv[3]
 
-    REGISTRY_IP = sys.argv[5]
-    REGISTRY_PUERTO = int(sys.argv[6])
+    REGISTRY_IP = sys.argv[4]
+    REGISTRY_PUERTO = int(sys.argv[5])
     REGISTRY_ADDR = (REGISTRY_IP, REGISTRY_PUERTO)
             
     #clientGestor = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
