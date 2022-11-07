@@ -236,26 +236,35 @@ if (len(sys.argv) == 6):
                 send(msg,clientEngine)
 
                 existe = clientEngine.recv(2048).decode(FORMAT)
-                TOKEN = int(existe)
-                print("Se te ha asignado el TOKEN -> " + repr(TOKEN))
-                print("")
+                print("1")
 
                 if existe != "El usuario introducido no existe en la BBDD.":
+                    print("2")
+                    TOKEN = existe
+                    print("3")
+                    print("Se te ha asignado el TOKEN -> " + repr(TOKEN))
+                    print("")
                     send("ESPERA", clientEngine)
                     print(clientEngine.recv(2048).decode(FORMAT))     # Se queda esperando a recibir el mensaje de que va a empezar la partida
 
                     #empieza a pedir teclas
-                    producer = KafkaProducer(bootstrap_servers = GESTOR_BOOTSTRAP_SERVER)
-                    while 1:
-                        if msvcrt.kbhit():
-                            msg = msvcrt.getch()
-                            #la tecla 27 es el ESC
-                            if ord(msg) != 27:
-                                ack = producer.send('SD', msg)
-                                print("Enviando msg:", msg.decode('utf-8'))
-                                #metadata = ack.get()
-                            else:
-                                break
+                    """
+                    try:
+                        producer = KafkaProducer(bootstrap_servers = GESTOR_BOOTSTRAP_SERVER)
+                        while 1:
+                            if msvcrt.kbhit():
+                                msg = msvcrt.getch()
+                                #la tecla 27 es el ESC
+                                if ord(msg) != 27:
+                                    ack = producer.send('SD', msg)
+                                    print("Enviando msg:", msg.decode('utf-8'))
+                                    #metadata = ack.get()
+                                else:
+                                    break
+                    except:
+                        print("Casca el kafka")
+                        pass
+                    """
                     ##
                     ## CONTINUAR
                     ##

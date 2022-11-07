@@ -5,13 +5,14 @@ import random
 import time
 import msvcrt
 
+
 FORMAT = 'utf-8'
 HEADER = 64
 SERVER = socket.gethostbyname(socket.gethostname())
 print(SERVER)
 bootstrap_servers = ['localhost:9092']
 TIMEOUT = 60
-socket.setdefaulttimeout(20)
+socket.setdefaulttimeout(60)
 def menuPrincipal():
     print("Nueva partida (1)")
     print("Salir (2)")
@@ -64,9 +65,9 @@ if (len(sys.argv) == 5):
 
     ADDR_ESCUCHAR = (SERVER,PUERTO)
 
-    def handle_client(conn,addr, starttime, jugadores_preparados):
+    def handle_client(conn,addr, starttime):
         print(f"[NUEVA CONEXION] {addr} connected.")
-
+        global jugadores_preparados
         connected = True
 
         try:
@@ -119,8 +120,8 @@ if (len(sys.argv) == 5):
                                     distintoDe0 = True
 
                         if distintoDe0:
-                            info = "Tu usuario ya tiene un TOKEN asignado. El TOKEN -> " + repr(YATIENETOKEN)
-                            conn.send(info.encode(FORMAT))
+                            mensaje = YATIENETOKEN
+                            conn.send(mensaje.encode(FORMAT))
                             print("El jugador '" + ALIAS + "' se ha unido a la partida con el TOKEN -> " + repr(YATIENETOKEN) + ".")
                             jugadores_preparados.append(YATIENETOKEN)
 
@@ -168,7 +169,7 @@ if (len(sys.argv) == 5):
                                         print("")
                                         print("El jugador '" + buscarAlias[1] + "' se ha unido a la partida con el TOKEN -> " + repr(TOKEN) + ".")
                                         jugadores_preparados.append(TOKEN)
-                                        mensaje = repr(TOKEN)
+                                        mensaje = TOKEN
                                         conn.send(mensaje.encode(FORMAT))
                                         añadidoTOKEN = True
                                     else:
@@ -203,9 +204,10 @@ if (len(sys.argv) == 5):
         print("")
         starttime = time.time()
         empezar = False
+        global jugadores_preparados
         jugadores_preparados = []
         climas = []
-        print("Tiempo restante para iniciar partidad: ", TIMEOUT," s")
+        print("Tiempo restante para iniciar partida: ", TIMEOUT," s")
 
         while True:
             if (time.time() - starttime) > TIMEOUT:
@@ -219,26 +221,31 @@ if (len(sys.argv) == 5):
                             print("Falta o falla algo en Ciudades.txt; Abortando Partida, Volviendo al menu...")
                             break
                         else:
-                            print("Comenzando Partida")
+                            #print("Comenzando Partida")
+                            #game = Mapa()
+                            game = len(climas)
+
 
             else:
-                
-                conn, addr = server.accept()
-            
-                CONEX_ACTIVAS = threading.active_count()
-                
-                if (CONEX_ACTIVAS <= MAX_CONEXIONES): 
-                    thread = threading.Thread(target=handle_client, args=(conn, addr, starttime, jugadores_preparados))
-                    thread.start()
-
-                    #print('\n' + f"[CONEXIONES ACTIVAS]: {CONEX_ACTIVAS}")
-                    #print("CONEXIONES RESTANTES PARA CERRAR EL SERVICIO: " + repr(MAX_CONEXIONES-CONEX_ACTIVAS))
+                try:
+                    conn, addr = server.accept()
+                except:
+                    pass
+                if (time.time() - starttime) < TIMEOUT:
+                    CONEX_ACTIVAS = threading.active_count()
                     
-                else:
-                    print("OOppsss... DEMASIADAS CONEXIONES. ESPERANDO A QUE ALGUIEN SE VAYA")
-                    conn.send("Demasiadas conexiones. Tendrás que esperar a que alguien se vaya".encode(FORMAT))
-                    conn.close()
-                    CONEX_ACTUALES = threading.active_count()-1
+                    if (CONEX_ACTIVAS <= MAX_CONEXIONES): 
+                        thread = threading.Thread(target=handle_client, args=(conn, addr, starttime))
+                        thread.start()
+
+                        #print('\n' + f"[CONEXIONES ACTIVAS]: {CONEX_ACTIVAS}")
+                        #print("CONEXIONES RESTANTES PARA CERRAR EL SERVICIO: " + repr(MAX_CONEXIONES-CONEX_ACTIVAS))
+                        
+                    else:
+                        print("OOppsss... DEMASIADAS CONEXIONES. ESPERANDO A QUE ALGUIEN SE VAYA")
+                        conn.send("Demasiadas conexiones. Tendrás que esperar a que alguien se vaya".encode(FORMAT))
+                        conn.close()
+                        CONEX_ACTUALES = threading.active_count()-1
 
             
 
