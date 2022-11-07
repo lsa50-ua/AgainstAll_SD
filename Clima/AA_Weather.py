@@ -22,6 +22,7 @@ try:
             else:
                 fichero = open('BDClima.txt', 'r')
                 lineas = fichero.readlines()
+                fichero.close()
                 marcador = False
                 for i in range(len(lineas)):
                     separador =lineas[i].split(sep=':')
