@@ -2,16 +2,58 @@ import sys
 import socket
 import threading
 import random
+import time
+import msvcrt
 
 FORMAT = 'utf-8'
 HEADER = 64
 SERVER = socket.gethostbyname(socket.gethostname())
+bootstrap_servers = ['localhost:9092']
+TIMEOUT = 60
 
 def menuPrincipal():
     print("Nueva partida (1)")
     print("Salir (2)")
 
-if (len(sys.argv) == 7):
+def obtenerClimas():
+    obj = socket.socket()
+
+    #Conexión con el servidor. Parametros: IP (puede ser del tipo 192.168.1.1 o localhost), Puerto
+    obj.connect(WEATHER_ADDR)
+    print("Conectado al servidor")
+
+    ficheroC = open('Ciudades.txt', 'r')
+    lineasC = ficheroC.readlines()
+    ficheroC.close()
+    lista_climas = []
+    i = 0
+    while len(lista_climas) != 4:
+        #Con el método send, enviamos el mensaje
+        obj.send(lineasC[i].rstrip().encode('utf-8'))
+        #Cerramos la instancia del objeto servidor
+        respuesta=obj.recv(4096)
+        if respuesta.decode('utf-8') != "ERROR":
+            lista_climas.append(respuesta.decode('utf-8'))
+            i+=1
+        else:
+            print("ERROR: La ciudad ",lineasC[i].rsplit(), "no existe")
+            break
+    obj.send("0".encode('utf-8'))
+
+    if len(lista_climas) == 4:
+        print("El mapa esta compuesto por las siguientes ciudades: ")
+
+        for i in range(len(lista_climas)):
+            separados = lista_climas[i].split(sep=':')
+            print(separados[0], separados[1], end="")
+            print("ºC")
+        
+    obj.close()
+    print("Conexión con el servidor del tiempo cerrada")
+    return lista_climas
+
+    
+if (len(sys.argv) == 5):
     PUERTO = int(sys.argv[1])
     MAX_CONEXIONES = int(sys.argv[2])     # Número máximo de jugadores que se puede conectar a la partida
 
@@ -19,13 +61,10 @@ if (len(sys.argv) == 7):
     WEATHER_PUERTO = int(sys.argv[4])
     WEATHER_ADDR = (WEATHER_IP,WEATHER_PUERTO)
 
-    GESTOR_IP = sys.argv[5]
-    GESTOR_PUERTO = int(sys.argv[6])
-    GESTOR_ADDR = (GESTOR_IP,GESTOR_PUERTO)
 
     ADDR_ESCUCHAR = (SERVER,PUERTO)
 
-    def handle_client(conn,addr):
+    def handle_client(conn,addr, starttime, jugadores_preparados):
         print(f"[NUEVA CONEXION] {addr} connected.")
 
         connected = True
@@ -38,10 +77,21 @@ if (len(sys.argv) == 7):
                     msg_length = int(msg_length)
                     msg = conn.recv(msg_length).decode(FORMAT)
                     parametros = msg.split(":")
-
+                    
                     if msg == "FIN":
                         connected = False
-
+                    elif msg == "ESPERA":
+                        if (time.time() - starttime) > TIMEOUT:
+                            connected = False
+                        else:
+                            while True:
+                                if (time.time() - starttime) > TIMEOUT:
+                                    break
+                            if len(jugadores_preparados) > 1:       
+                                info = "Tiempo de espera finalizado Iniciando partida"
+                                conn.send(info.encode(FORMAT))
+                            else:
+                                connected = False
                     elif len(parametros) == 2:
                         ALIAS = parametros[0]
                         PASSWORD = parametros[1]
@@ -71,6 +121,8 @@ if (len(sys.argv) == 7):
                         if distintoDe0:
                             info = "Tu usuario ya tiene un TOKEN asignado. El TOKEN -> " + repr(YATIENETOKEN)
                             conn.send(info.encode(FORMAT))
+                            print("El jugador '" + ALIAS + "' se ha unido a la partida con el TOKEN -> " + repr(YATIENETOKEN) + ".")
+                            jugadores_preparados.append(YATIENETOKEN)
 
                         elif encontrado:
                             previo = True
@@ -114,19 +166,21 @@ if (len(sys.argv) == 7):
                                         f.write('ALIAS:' + buscarAlias[1] + ' CONTRASEÑA:' + buscarContraseña[1] + ' NIVEL:' + buscarNivel[1] + ' EC:' + buscarEC[1] + ' EF:' + buscarEF[1] + ' TOKEN:' + repr(TOKEN) + '\n')
 
                                         print("")
-                                        print("El jugador '" + buscarAlias[1] + "' ha se ha unido a la partida con el TOKEN-" + repr(TOKEN) + ".")
+                                        print("El jugador '" + buscarAlias[1] + "' se ha unido a la partida con el TOKEN -> " + repr(TOKEN) + ".")
+                                        jugadores_preparados.append(TOKEN)
                                         mensaje = "Se te ha asignado el TOKEN -> '" + repr(TOKEN) + "'"
                                         conn.send(mensaje.encode(FORMAT))
                                         añadidoTOKEN = True
-                                        
                                     else:
                                         f.write(line)    
 
                             if añadidoTOKEN == False:
                                 conn.send("El usuario introducido no existe en la BBDD.".encode(FORMAT))
+                                conn.close()
 
                         else:
                             conn.send("El usuario introducido no existe en la BBDD.".encode(FORMAT))
+                            conn.close()
 
                     else:
                         connected = True
@@ -147,22 +201,46 @@ if (len(sys.argv) == 7):
         print(f"[LISTENING] Engine a la escucha en {SERVER}")
         CONEX_ACTIVAS = threading.active_count()-1
         print("")
+        starttime = time.time()
+        empezar = False
+        jugadores_preparados = []
+        climas = []
+        print("Tiempo restante para iniciar partidad: ", TIMEOUT," s")
 
         while True:
-            conn, addr = server.accept()
-            CONEX_ACTIVAS = threading.active_count()
+            if (time.time() - starttime) > TIMEOUT:
+                if len(jugadores_preparados) < 2:
+                    print("La partida no se puede iniciar por falta de jugadores, Volviendo al menu...")
+                    break
+                else:
+                    if len(climas) != 4:
+                        climas = obtenerClimas()
+                        if len(climas) != 4:
+                            print("Falta o falla algo en Ciudades.txt; Abortando Partida, Volviendo al menu...")
+                            break
+                        else:
+                            print("Comenzando Partida")
 
-            if (CONEX_ACTIVAS <= MAX_CONEXIONES): 
-                thread = threading.Thread(target=handle_client, args=(conn, addr))
-                thread.start()
-                #print('\n' + f"[CONEXIONES ACTIVAS]: {CONEX_ACTIVAS}")
-                #print("CONEXIONES RESTANTES PARA CERRAR EL SERVICIO: " + repr(MAX_CONEXIONES-CONEX_ACTIVAS))
-                
             else:
-                print("OOppsss... DEMASIADAS CONEXIONES. ESPERANDO A QUE ALGUIEN SE VAYA")
-                conn.send("Demasiadas conexiones. Tendrás que esperar a que alguien se vaya".encode(FORMAT))
-                conn.close()
-                CONEX_ACTUALES = threading.active_count()-1
+                
+                conn, addr = server.accept()
+            
+                CONEX_ACTIVAS = threading.active_count()
+                
+                if (CONEX_ACTIVAS <= MAX_CONEXIONES): 
+                    thread = threading.Thread(target=handle_client, args=(conn, addr, starttime, jugadores_preparados))
+                    thread.start()
+
+                    #print('\n' + f"[CONEXIONES ACTIVAS]: {CONEX_ACTIVAS}")
+                    #print("CONEXIONES RESTANTES PARA CERRAR EL SERVICIO: " + repr(MAX_CONEXIONES-CONEX_ACTIVAS))
+                    
+                else:
+                    print("OOppsss... DEMASIADAS CONEXIONES. ESPERANDO A QUE ALGUIEN SE VAYA")
+                    conn.send("Demasiadas conexiones. Tendrás que esperar a que alguien se vaya".encode(FORMAT))
+                    conn.close()
+                    CONEX_ACTUALES = threading.active_count()-1
+
+            
 
     ######################### MAIN ##########################
 
@@ -176,24 +254,26 @@ if (len(sys.argv) == 7):
         while seguir:
             menuPrincipal()
 
-            eleccion = int(input("Por favor introduzca la eleccion: "))
+            eleccion = int(input('Elige una opcion: '))
             print("")
 
             if eleccion == 1:
                 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 server.bind(ADDR_ESCUCHAR)
                 start()
+                server.close()
 
             elif eleccion == 2:
-                seguir = False
-            
+                seguir = False           
             else:
                 print("Introduce una opción correcta.")
                 print("")
-    except:
+                break
+    except ValueError:
             print("")
             print("Por favor introduzca un carácter númerico.")
             print("")
+            
 
 else:
-    print ("Parece que algo falló. Necesito estos argumentos para el Jugador: <Puerto_Escucha> <MAX_Jugadores> <Weather_IP> <Weather_Puerto> <GestorDeColas_IP> <GestorDeColas_Puerto>")
+    print ("Parece que algo falló. Necesito estos argumentos para el Jugador: <Puerto_Escucha> <MAX_Jugadores> <Weather_IP> <Weather_Puerto>")

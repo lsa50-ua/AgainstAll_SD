@@ -1,8 +1,3 @@
-# Código para imprimir el tablero sacado de -> http://programarcadegames.com/index.php?lang=es&chapter=array_backed_grids
-
-# HAY QUE HACER QUE EL MAPA LO IMPRIMA LA CLASE JUGADOR (CREO)
-# CAMBIAR LO DE QUE HAYAN DOS PANTALLAS
-
 from Posicion import *
 import random
 import pygame
@@ -36,10 +31,10 @@ class Mapa:
             # "espacio" -> nada/vacío
         for i in range(20):
             for j in range(20):
-                n = random.randint(0,3)
-                if n == 0:
+                n = random.randint(0,15)
+                if n == 7:
                     self.matriz[i][j] = 'M'
-                elif n == 1:
+                elif n == 14:
                     self.matriz[i][j] = 'A'
                 else:
                         self.matriz[i][j] = ' '
