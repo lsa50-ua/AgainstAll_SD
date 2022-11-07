@@ -1,7 +1,10 @@
+from ensurepip import bootstrap
 import random
 import socket
 import sys
 from Posicion import *
+from kafka import KafkaProducer
+import msvcrt
 
 HEADER = 64
 FORMAT = 'utf-8'
@@ -241,6 +244,18 @@ if (len(sys.argv) == 6):
                     send("ESPERA", clientEngine)
                     print(clientEngine.recv(2048).decode(FORMAT))     # Se queda esperando a recibir el mensaje de que va a empezar la partida
 
+                    #empieza a pedir teclas
+                    producer = KafkaProducer(bootstrap_servers = GESTOR_BOOTSTRAP_SERVER)
+                    while 1:
+                        if msvcrt.kbhit():
+                            msg = msvcrt.getch()
+                            #la tecla 27 es el ESC
+                            if ord(msg) != 27:
+                                ack = producer.send('SD', msg)
+                                print("Enviando msg:", msg.decode('utf-8'))
+                                #metadata = ack.get()
+                            else:
+                                break
                     ##
                     ## CONTINUAR
                     ##

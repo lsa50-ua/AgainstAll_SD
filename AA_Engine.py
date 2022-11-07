@@ -11,7 +11,7 @@ SERVER = socket.gethostbyname(socket.gethostname())
 print(SERVER)
 bootstrap_servers = ['localhost:9092']
 TIMEOUT = 60
-
+socket.setdefaulttimeout(20)
 def menuPrincipal():
     print("Nueva partida (1)")
     print("Salir (2)")
