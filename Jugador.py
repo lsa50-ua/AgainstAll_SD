@@ -231,9 +231,12 @@ if (len(sys.argv) == 6):
                 msg = aliasLimpio + ":" + contraseñaLimpia
 
                 send(msg,clientEngine)
+
                 existe = clientEngine.recv(2048).decode(FORMAT)
-                print(existe)
+                TOKEN = int(existe)
+                print("Se te ha asignado el TOKEN -> " + repr(TOKEN))
                 print("")
+
                 if existe != "El usuario introducido no existe en la BBDD.":
                     send("ESPERA", clientEngine)
                     print(clientEngine.recv(2048).decode(FORMAT))     # Se queda esperando a recibir el mensaje de que va a empezar la partida
@@ -265,4 +268,4 @@ if (len(sys.argv) == 6):
         print("")
 
 else:
-    print ("Parece que algo falló. Necesito estos argumentos para el Jugador: <Engine_IP> <Engine_Puerto> <GestorDeColas_IP> <GestorDeColas_Puerto> <Registry_IP> <Registry_Puerto>")
+    print ("Parece que algo falló. Necesito estos argumentos para el Jugador: <Engine_IP> <Engine_Puerto> <GestorDeColas_IP> <Registry_IP> <Registry_Puerto>")

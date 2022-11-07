@@ -8,6 +8,7 @@ import msvcrt
 FORMAT = 'utf-8'
 HEADER = 64
 SERVER = socket.gethostbyname(socket.gethostname())
+print(SERVER)
 bootstrap_servers = ['localhost:9092']
 TIMEOUT = 60
 
@@ -60,7 +61,6 @@ if (len(sys.argv) == 5):
     WEATHER_IP = sys.argv[3]
     WEATHER_PUERTO = int(sys.argv[4])
     WEATHER_ADDR = (WEATHER_IP,WEATHER_PUERTO)
-
 
     ADDR_ESCUCHAR = (SERVER,PUERTO)
 
@@ -168,7 +168,7 @@ if (len(sys.argv) == 5):
                                         print("")
                                         print("El jugador '" + buscarAlias[1] + "' se ha unido a la partida con el TOKEN -> " + repr(TOKEN) + ".")
                                         jugadores_preparados.append(TOKEN)
-                                        mensaje = "Se te ha asignado el TOKEN -> '" + repr(TOKEN) + "'"
+                                        mensaje = repr(TOKEN)
                                         conn.send(mensaje.encode(FORMAT))
                                         añadidoTOKEN = True
                                     else:
@@ -265,15 +265,16 @@ if (len(sys.argv) == 5):
 
             elif eleccion == 2:
                 seguir = False           
+
             else:
                 print("Introduce una opción correcta.")
                 print("")
                 break
+
     except ValueError:
             print("")
             print("Por favor introduzca un carácter númerico.")
             print("")
-            
 
 else:
     print ("Parece que algo falló. Necesito estos argumentos para el Jugador: <Puerto_Escucha> <MAX_Jugadores> <Weather_IP> <Weather_Puerto>")

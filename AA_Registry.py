@@ -4,7 +4,7 @@ import sys
 
 HEADER = 64
 FORMAT = 'utf-8'
-MAX_CONEXIONES = 5     # nº conexiones que puede conectar a la vez
+MAX_CONEXIONES = 100     # nº conexiones que puede conectar a la vez
 SERVER = socket.gethostbyname(socket.gethostname())
 
 if (len(sys.argv) == 2):
