@@ -247,6 +247,7 @@ if (len(sys.argv) == 6):
                     send("ESPERA", clientEngine)
                     print(clientEngine.recv(2048).decode(FORMAT))     # Se queda esperando a recibir el mensaje de que va a empezar la partida
                 else:
+                    print(existe)
                     clientEngine.close()
 
                     #empieza a pedir teclas
