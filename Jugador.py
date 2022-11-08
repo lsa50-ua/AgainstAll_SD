@@ -4,6 +4,7 @@ import socket
 import sys
 from Posicion import *
 from kafka import KafkaProducer
+from kafka import KafkaConsumer
 import msvcrt
 
 HEADER = 64
@@ -236,16 +237,36 @@ if (len(sys.argv) == 6):
                 send(msg,clientEngine)
 
                 existe = clientEngine.recv(2048).decode(FORMAT)
-                print("1")
 
                 if existe != "El usuario introducido no existe en la BBDD.":
-                    print("2")
                     TOKEN = existe
-                    print("3")
                     print("Se te ha asignado el TOKEN -> " + repr(TOKEN))
                     print("")
                     send("ESPERA", clientEngine)
                     print(clientEngine.recv(2048).decode(FORMAT))     # Se queda esperando a recibir el mensaje de que va a empezar la partida
+                    topicName = 'MAPA'
+                    consumer = KafkaConsumer (topicName, group_id = 'group1',bootstrap_servers = GESTOR_BOOTSTRAP_SERVER)
+                    producer = KafkaProducer(bootstrap_servers = GESTOR_BOOTSTRAP_SERVER)
+                    try:
+                        for mapa in consumer:
+                            if mapa.decode(FORMAT) == (TOKEN + ":FIN"):
+                                print("Has perdido")
+                                break
+                            if mapa.decode(FORMAT) == (TOKEN + ":GANADOR"):
+                                print("Has ganado")
+                                break
+                            #aqui tiene que imprimir el mapa
+                            #print ("%s:%d:%d: key=%s value=%s" % (message.topic, message.partition,message.offset, message.key,message.value.decode('utf-8')))
+                            while True:
+                                if msvcrt.kbhit():
+                                    entradaTec = msvcrt.getch()
+                                    msg = TOKEN + ":" + entradaTec
+                                    producer.send('PLAYERS', msg)
+                                if mapa in consumer:
+                                    break
+                    except :
+                        print("Casca el envio o recibimientos de datos de Kafka")
+
                 else:
                     print(existe)
                     clientEngine.close()
@@ -272,8 +293,8 @@ if (len(sys.argv) == 6):
                     ## CONTINUAR
                     ##
 
-                    #send("FIN",clientEngine)
-                    #clientEngine.close()
+                    send("FIN",clientEngine)
+                    clientEngine.close()
 
                     ### TERMINAR ###
                     # 1- El player se conecta al engine y le pasa su alias y su password.

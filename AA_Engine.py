@@ -4,13 +4,15 @@ import threading
 import random
 import time
 import msvcrt
+from kafka import KafkaProducer
+from kafka import KafkaConsumer
 
 
 FORMAT = 'utf-8'
 HEADER = 64
 SERVER = socket.gethostbyname(socket.gethostname())
 print(SERVER)
-bootstrap_servers = ['localhost:9092']
+GESTOR_BOOTSTRAP_SERVER = ['localhost:9092']
 TIMEOUT = 60
 socket.setdefaulttimeout(60)
 def menuPrincipal():
@@ -123,7 +125,8 @@ if (len(sys.argv) == 5):
                             mensaje = YATIENETOKEN
                             conn.send(mensaje.encode(FORMAT))
                             print("El jugador '" + ALIAS + "' se ha unido a la partida con el TOKEN -> " + repr(YATIENETOKEN) + ".")
-                            jugadores_preparados.append(YATIENETOKEN)
+                            TOKEN = YATIENETOKEN
+                            jugadores_preparados.append(TOKEN)
 
                         elif encontrado:
                             previo = True
@@ -189,11 +192,13 @@ if (len(sys.argv) == 5):
             print("")
             print(f"Cerrada la conexión en: {addr} ")
             print("")
+            jugadores_preparados.remove(TOKEN)
             conn.close()
 
         except:
             print("")
             print(f"Se ha forzado la conexión y ha terminado en: {addr} ")
+            jugadores_preparados.remove(TOKEN)
             conn.close()
 
     def start():
@@ -221,9 +226,25 @@ if (len(sys.argv) == 5):
                             print("Falta o falla algo en Ciudades.txt; Abortando Partida, Volviendo al menu...")
                             break
                         else:
-                            #print("Comenzando Partida")
+                            print()
+                            print("Comenzando Partida")
+                            print()
                             #game = Mapa()
-                            game = len(climas)
+                            acabada = False
+                            topicName = 'PLAYERS'
+                            consumer = KafkaConsumer (topicName, group_id = 'group1',bootstrap_servers = GESTOR_BOOTSTRAP_SERVER)
+                            producer = KafkaProducer(bootstrap_servers = GESTOR_BOOTSTRAP_SERVER)
+                            #producer.send('MAPA', mapa.encode(FORMAT))
+                            while acabada != True:
+                                for movimiento in consumer:
+                                    #hacer respectivo movimiento en el mapa calcular si se ha pegado con alguien, subido de nivel, explotado mina
+                                    #producer.send('MAPA', mapa.encode(FORMAT))
+                                    if jugadores_preparados == 1:
+                                        print("Ha ganado el jugador con el Token: ",jugadores_preparados[0])
+                                        ganador = jugadores_preparados[0] + ":GANADOR"
+                                        producer.send('MAPA', ganador.encode(FORMAT))
+                                        acabada = True
+                                        break
 
 
             else:
