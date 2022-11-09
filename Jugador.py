@@ -85,9 +85,6 @@ if (len(sys.argv) == 6):
     REGISTRY_IP = sys.argv[4]
     REGISTRY_PUERTO = int(sys.argv[5])
     REGISTRY_ADDR = (REGISTRY_IP, REGISTRY_PUERTO)
-            
-    #clientGestor = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    #clientGestor.connect(GESTOR_ADDR)
     
     bucle = True
 

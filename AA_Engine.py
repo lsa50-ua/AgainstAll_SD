@@ -13,8 +13,8 @@ HEADER = 64
 SERVER = socket.gethostbyname(socket.gethostname())
 print(SERVER)
 GESTOR_BOOTSTRAP_SERVER = ['localhost:9092']
-TIMEOUT = 60
-socket.setdefaulttimeout(60)
+TIMEOUT = 30
+socket.setdefaulttimeout(30)
 def menuPrincipal():
     print("Nueva partida (1)")
     print("Salir (2)")
@@ -71,6 +71,7 @@ if (len(sys.argv) == 5):
         print(f"[NUEVA CONEXION] {addr} connected.")
         global jugadores_preparados
         connected = True
+        tieneToken = False
 
         try:
             while connected:
@@ -127,6 +128,7 @@ if (len(sys.argv) == 5):
                             print("El jugador '" + ALIAS + "' se ha unido a la partida con el TOKEN -> " + repr(YATIENETOKEN) + ".")
                             TOKEN = YATIENETOKEN
                             jugadores_preparados.append(TOKEN)
+                            tieneToken = True
 
                         elif encontrado:
                             previo = True
@@ -175,6 +177,7 @@ if (len(sys.argv) == 5):
                                         mensaje = TOKEN
                                         conn.send(mensaje.encode(FORMAT))
                                         añadidoTOKEN = True
+                                        tieneToken = True
                                     else:
                                         f.write(line)    
 
@@ -192,13 +195,19 @@ if (len(sys.argv) == 5):
             print("")
             print(f"Cerrada la conexión en: {addr} ")
             print("")
-            jugadores_preparados.remove(TOKEN)
+
+            if tieneToken:
+                jugadores_preparados.remove(TOKEN)
+
             conn.close()
 
         except:
             print("")
             print(f"Se ha forzado la conexión y ha terminado en: {addr} ")
-            jugadores_preparados.remove(TOKEN)
+
+            if tieneToken:
+                jugadores_preparados.remove(TOKEN)
+
             conn.close()
 
     def start():
@@ -245,7 +254,6 @@ if (len(sys.argv) == 5):
                                         producer.send('MAPA', ganador.encode(FORMAT))
                                         acabada = True
                                         break
-
 
             else:
                 try:

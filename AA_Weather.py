@@ -1,7 +1,7 @@
 import socket
 import sys
 
-HOST = 'localhost'
+HOST = socket.gethostbyname(socket.gethostname())
 
 if (len(sys.argv) == 2):
     PORT = int(sys.argv[1])
