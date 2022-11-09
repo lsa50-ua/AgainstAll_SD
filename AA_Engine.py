@@ -95,6 +95,8 @@ if (len(sys.argv) == 5):
                                 info = "Tiempo de espera finalizado Iniciando partida"
                                 conn.send(info.encode(FORMAT))
                             else:
+                                info = "No se puede iniciar partida jugadores insuficientes"
+                                conn.send(info.encode(FORMAT))
                                 connected = False
                     elif len(parametros) == 2:
                         ALIAS = parametros[0]
@@ -241,13 +243,15 @@ if (len(sys.argv) == 5):
                             #game = Mapa()
                             acabada = False
                             topicName = 'PLAYERS'
-                            consumer = KafkaConsumer (topicName, group_id = 'group1',bootstrap_servers = GESTOR_BOOTSTRAP_SERVER)
+                            consumer = KafkaConsumer (topicName, bootstrap_servers = GESTOR_BOOTSTRAP_SERVER)
                             producer = KafkaProducer(bootstrap_servers = GESTOR_BOOTSTRAP_SERVER)
-                            #producer.send('MAPA', mapa.encode(FORMAT))
+                            producer.send('MAPA', "hello".encode(FORMAT))
                             while acabada != True:
                                 for movimiento in consumer:
+                                    print(movimiento.value.decode(FORMAT))
                                     #hacer respectivo movimiento en el mapa calcular si se ha pegado con alguien, subido de nivel, explotado mina
                                     #producer.send('MAPA', mapa.encode(FORMAT))
+                                    producer.send('MAPA', "adios".encode(FORMAT))
                                     if jugadores_preparados == 1:
                                         print("Ha ganado el jugador con el Token: ",jugadores_preparados[0])
                                         ganador = jugadores_preparados[0] + ":GANADOR"

@@ -240,29 +240,33 @@ if (len(sys.argv) == 6):
                     print("Se te ha asignado el TOKEN -> " + repr(TOKEN))
                     print("")
                     send("ESPERA", clientEngine)
-                    print(clientEngine.recv(2048).decode(FORMAT))     # Se queda esperando a recibir el mensaje de que va a empezar la partida
-                    topicName = 'MAPA'
-                    consumer = KafkaConsumer (topicName, group_id = 'group1',bootstrap_servers = GESTOR_BOOTSTRAP_SERVER)
-                    producer = KafkaProducer(bootstrap_servers = GESTOR_BOOTSTRAP_SERVER)
-                    try:
-                        for mapa in consumer:
-                            if mapa.decode(FORMAT) == (TOKEN + ":FIN"):
-                                print("Has perdido")
-                                break
-                            if mapa.decode(FORMAT) == (TOKEN + ":GANADOR"):
-                                print("Has ganado")
-                                break
-                            #aqui tiene que imprimir el mapa
-                            #print ("%s:%d:%d: key=%s value=%s" % (message.topic, message.partition,message.offset, message.key,message.value.decode('utf-8')))
-                            while True:
-                                if msvcrt.kbhit():
-                                    entradaTec = msvcrt.getch()
-                                    msg = TOKEN + ":" + entradaTec
-                                    producer.send('PLAYERS', msg)
-                                if mapa in consumer:
+                    respuesta = clientEngine.recv(2048).decode(FORMAT)    # Se queda esperando a recibir el mensaje de que va a empezar la partida
+                    if respuesta == "Tiempo de espera finalizado Iniciando partida":
+                        topicName = 'MAPA'
+                        
+                        try:
+                            consumer = KafkaConsumer (topicName, bootstrap_servers = GESTOR_BOOTSTRAP_SERVER)
+                            producer = KafkaProducer(bootstrap_servers = GESTOR_BOOTSTRAP_SERVER)
+                            print
+                            for mapa in consumer:
+                                if mapa.value.decode(FORMAT) == (TOKEN + ":FIN"):
+                                    print("Has perdido")
                                     break
-                    except :
-                        print("Casca el envio o recibimientos de datos de Kafka")
+                                if mapa.value.decode(FORMAT) == (TOKEN + ":GANADOR"):
+                                    print("Has ganado")
+                                    break
+                                print(mapa.value.decode(FORMAT))
+                                #aqui tiene que imprimir el mapa
+                                #print ("%s:%d:%d: key=%s value=%s" % (message.topic, message.partition,message.offset, message.key,message.value.decode('utf-8')))
+                                while True:
+                                    if msvcrt.kbhit():
+                                        entradaTec = msvcrt.getch()
+                                        msg = TOKEN + ":" + entradaTec
+                                        producer.send('PLAYERS', msg)
+                                    if mapa in consumer:
+                                        break
+                        except :
+                            print("Casca el envio o recibimientos de datos de Kafka")
 
                 else:
                     print(existe)
