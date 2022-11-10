@@ -6,6 +6,7 @@ from Posicion import *
 from kafka import KafkaProducer
 from kafka import KafkaConsumer
 import msvcrt
+from os import system
 
 HEADER = 64
 FORMAT = 'utf-8'
@@ -247,8 +248,11 @@ if (len(sys.argv) == 6):
                         try:
                             consumer = KafkaConsumer (topicName, bootstrap_servers = GESTOR_BOOTSTRAP_SERVER)
                             producer = KafkaProducer(bootstrap_servers = GESTOR_BOOTSTRAP_SERVER)
+                            topicName = 'PLAYERS'
                             print
                             for mapa in consumer:
+                                
+                                system("cls")
                                 if mapa.value.decode(FORMAT) == (TOKEN + ":FIN"):
                                     print("Has perdido")
                                     break
@@ -258,16 +262,21 @@ if (len(sys.argv) == 6):
                                 print(mapa.value.decode(FORMAT))
                                 #aqui tiene que imprimir el mapa
                                 #print ("%s:%d:%d: key=%s value=%s" % (message.topic, message.partition,message.offset, message.key,message.value.decode('utf-8')))
-                                while True:
+                                while 1:
                                     if msvcrt.kbhit():
                                         entradaTec = msvcrt.getch()
-                                        msg = TOKEN + ":" + entradaTec
-                                        producer.send('PLAYERS', msg)
-                                    if mapa in consumer:
+                                        msg = TOKEN + ":" + entradaTec.decode(FORMAT)
+                                        producer.send(topicName, msg.encode(FORMAT))
                                         break
+                                
                         except :
                             print("Casca el envio o recibimientos de datos de Kafka")
+                            pass
 
+                        #limpio el buffer de teclas
+                        while msvcrt.kbhit():
+                            msvcrt.getch()
+                        
                 else:
                     print(existe)
                     clientEngine.close()
@@ -294,8 +303,8 @@ if (len(sys.argv) == 6):
                     ## CONTINUAR
                     ##
 
-                    send("FIN",clientEngine)
-                    clientEngine.close()
+                    #send("FIN",clientEngine)
+                    #clientEngine.close()
 
                     ### TERMINAR ###
                     # 1- El player se conecta al engine y le pasa su alias y su password.

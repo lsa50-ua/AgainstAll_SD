@@ -3,7 +3,7 @@ import socket
 import threading
 import random
 import time
-import msvcrt
+import copy
 from kafka import KafkaProducer
 from kafka import KafkaConsumer
 
@@ -75,11 +75,17 @@ if (len(sys.argv) == 5):
 
         try:
             while connected:
-                msg_length = conn.recv(HEADER).decode(FORMAT)
+                try:
+                    msg_length = conn.recv(HEADER).decode(FORMAT)
+                except:
+                    pass
 
                 if msg_length:
                     msg_length = int(msg_length)
-                    msg = conn.recv(msg_length).decode(FORMAT)
+                    try:
+                        msg = conn.recv(msg_length).decode(FORMAT)
+                    except:
+                        pass   
                     parametros = msg.split(":")
                     
                     if msg == "FIN":
@@ -240,25 +246,31 @@ if (len(sys.argv) == 5):
                             print()
                             print("Comenzando Partida")
                             print()
+                            pInGame = copy.deepcopy(jugadores_preparados)
                             #game = Mapa()
                             acabada = False
                             topicName = 'PLAYERS'
-                            consumer = KafkaConsumer (topicName, bootstrap_servers = GESTOR_BOOTSTRAP_SERVER)
-                            producer = KafkaProducer(bootstrap_servers = GESTOR_BOOTSTRAP_SERVER)
-                            producer.send('MAPA', "hello".encode(FORMAT))
-                            while acabada != True:
-                                for movimiento in consumer:
-                                    print(movimiento.value.decode(FORMAT))
-                                    #hacer respectivo movimiento en el mapa calcular si se ha pegado con alguien, subido de nivel, explotado mina
-                                    #producer.send('MAPA', mapa.encode(FORMAT))
-                                    producer.send('MAPA', "adios".encode(FORMAT))
-                                    if jugadores_preparados == 1:
-                                        print("Ha ganado el jugador con el Token: ",jugadores_preparados[0])
-                                        ganador = jugadores_preparados[0] + ":GANADOR"
-                                        producer.send('MAPA', ganador.encode(FORMAT))
-                                        acabada = True
-                                        break
+                            try:
+                                consumer = KafkaConsumer (topicName, bootstrap_servers = GESTOR_BOOTSTRAP_SERVER)
+                                producer = KafkaProducer(bootstrap_servers = GESTOR_BOOTSTRAP_SERVER)
+                                #mandar el mapa generado a todos los jugadores
 
+                                producer.send('MAPA', "hello".encode(FORMAT))
+                                while acabada != True:
+                                    for movimiento in consumer:
+                                        print(movimiento.value.decode(FORMAT))
+                                        #hacer respectivo movimiento en el mapa calcular si se ha pegado con alguien, subido de nivel, explotado mina
+                                        #producer.send('MAPA', mapa.encode(FORMAT))
+                                        producer.send('MAPA', "adios".encode(FORMAT))
+                                        if len(pInGame) == 1:
+                                            print("Ha ganado el jugador con el Token: ",jugadores_preparados[0])
+                                            ganador = jugadores_preparados[0] + ":GANADOR"
+                                            producer.send('MAPA', ganador.encode(FORMAT))
+                                            acabada = True
+                                            break
+                            except:
+                                print("Casca el kafka")
+                                pass
             else:
                 try:
                     conn, addr = server.accept()
@@ -293,8 +305,10 @@ if (len(sys.argv) == 5):
     try:
         while seguir:
             menuPrincipal()
-
-            eleccion = int(input('Elige una opcion: '))
+            try:
+                eleccion = int(input('Elige una opcion: '))
+            except:
+                pass
             print("")
 
             if eleccion == 1:
