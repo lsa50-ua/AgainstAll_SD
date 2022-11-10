@@ -8,6 +8,8 @@ from os import system     # Para limpiar el terminal
 class Mapa:
     def __init__(self):
         self.matriz = []
+        self.climas = []
+        self.ciudades = []
 
         # Crea la estructura de la matriz
         for i in range(20):
@@ -46,10 +48,20 @@ class Mapa:
     def limpiar(self):
         for i in range(20):
             for j in range(20):
-                if mapa.getCelda(i,j) == 'J':
-                    mapa.vaciarCelda(i,j)
+                if self.matriz.getCelda(i,j) == 'J':
+                    self.matriz.vaciarCelda(i,j)
 
-system("cls")     # Limpiar la pantalla
+    def Climas(self,climas):
+        for i in range(len(climas)):
+            self.climas.append(climas[i])
+            print(self.climas[i])
+    
+    def Ciudades(self,ciudades):
+        for i in range(len(ciudades)):
+            self.ciudades.append(ciudades[i])
+            print(self.ciudades[i])
+
+""" system("cls")     # Limpiar la pantalla
 mapa = Mapa()
 posicion = Posicion()
 mapa.setCeldaJugador(posicion.getX(),posicion.getY())
@@ -186,4 +198,4 @@ while True:
                 else:
                     print("Pulsa una tecla correcta.")
             else:
-                break
+                break """

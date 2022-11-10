@@ -4,22 +4,23 @@ import threading
 import random
 import time
 import copy
+from Mapa import *
+from Jugador import *
 from kafka import KafkaProducer
 from kafka import KafkaConsumer
-
 
 FORMAT = 'utf-8'
 HEADER = 64
 SERVER = socket.gethostbyname(socket.gethostname())
-print(SERVER)
 GESTOR_BOOTSTRAP_SERVER = ['localhost:9092']
 TIMEOUT = 30
 socket.setdefaulttimeout(30)
+
 def menuPrincipal():
     print("Nueva partida (1)")
     print("Salir (2)")
 
-def obtenerClimas():
+def obtenerClimas(game):
     obj = socket.socket()
 
     #Conexión con el servidor. Parametros: IP (puede ser del tipo 192.168.1.1 o localhost), Puerto
@@ -31,26 +32,37 @@ def obtenerClimas():
     ficheroC.close()
     lista_climas = []
     i = 0
+
     while len(lista_climas) != 4:
         #Con el método send, enviamos el mensaje
         obj.send(lineasC[i].rstrip().encode('utf-8'))
         #Cerramos la instancia del objeto servidor
         respuesta=obj.recv(4096)
+
         if respuesta.decode('utf-8') != "ERROR":
             lista_climas.append(respuesta.decode('utf-8'))
             i+=1
         else:
             print("ERROR: La ciudad ",lineasC[i].rsplit(), "no existe")
             break
+
     obj.send("0".encode('utf-8'))
 
     if len(lista_climas) == 4:
+        climas = []
+        ciudades = []
+
         print("El mapa esta compuesto por las siguientes ciudades: ")
 
         for i in range(len(lista_climas)):
             separados = lista_climas[i].split(sep=':')
             print(separados[0], separados[1], end="")
             print("ºC")
+            climas.append(separados[1])
+            ciudades.append(separados[0])
+
+        game.Climas(climas)
+        game.Ciudades(ciudades)     # Guardo las ciudades y sus climas en el mapa
         
     obj.close()
     print("Conexión con el servidor del tiempo cerrada")
@@ -238,36 +250,49 @@ if (len(sys.argv) == 5):
                     break
                 else:
                     if len(climas) != 4:
-                        climas = obtenerClimas()
+                        game = Mapa()     # Mapa del juego
+                        climas = obtenerClimas(game)
+
                         if len(climas) != 4:
                             print("Falta o falla algo en Ciudades.txt; Abortando Partida, Volviendo al menu...")
                             break
+
                         else:
                             print()
                             print("Comenzando Partida")
                             print()
                             pInGame = copy.deepcopy(jugadores_preparados)
-                            #game = Mapa()
                             acabada = False
                             topicName = 'PLAYERS'
+
+                            # Fichero donde se guardan los TOKENS de los jugadores que empiezan a jugar en la partida
+                            # Sirve para saber si hay que crear un jugador con ese TOKEN o si ya ha sido creado
+
+                            #file = open("Jugando.txt", "w")
+                            #file.write()
+                            #file.close()
+
                             try:
                                 consumer = KafkaConsumer (topicName, bootstrap_servers = GESTOR_BOOTSTRAP_SERVER)
                                 producer = KafkaProducer(bootstrap_servers = GESTOR_BOOTSTRAP_SERVER)
-                                #mandar el mapa generado a todos los jugadores
+                                # mandar el mapa generado a todos los jugadores
 
                                 producer.send('MAPA', "hello".encode(FORMAT))
+
                                 while acabada != True:
                                     for movimiento in consumer:
-                                        print(movimiento.value.decode(FORMAT))
+                                        print(movimiento.value.decode(FORMAT))     # SACAR EL TOKEN Y EL MOVIMIENTO DE AQUÍ, CON SPLIT
                                         #hacer respectivo movimiento en el mapa calcular si se ha pegado con alguien, subido de nivel, explotado mina
                                         #producer.send('MAPA', mapa.encode(FORMAT))
                                         producer.send('MAPA', "adios".encode(FORMAT))
+
                                         if len(pInGame) == 1:
                                             print("Ha ganado el jugador con el Token: ",jugadores_preparados[0])
                                             ganador = jugadores_preparados[0] + ":GANADOR"
                                             producer.send('MAPA', ganador.encode(FORMAT))
                                             acabada = True
                                             break
+
                             except:
                                 print("Casca el kafka")
                                 pass
@@ -276,6 +301,7 @@ if (len(sys.argv) == 5):
                     conn, addr = server.accept()
                 except:
                     pass
+
                 if (time.time() - starttime) < TIMEOUT:
                     CONEX_ACTIVAS = threading.active_count()
                     
@@ -305,10 +331,12 @@ if (len(sys.argv) == 5):
     try:
         while seguir:
             menuPrincipal()
+
             try:
                 eleccion = int(input('Elige una opcion: '))
             except:
                 pass
+
             print("")
 
             if eleccion == 1:
