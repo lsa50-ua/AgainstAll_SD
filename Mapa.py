@@ -1,10 +1,13 @@
 import random
+from Posicion import *
+from Jugador import *
 
 class Mapa:
     def __init__(self):
         self.matriz = []
         self.climas = []
         self.ciudades = []
+        self.jugadores = []
 
         # Crea la estructura de la matriz
         for i in range(20):
@@ -38,21 +41,12 @@ class Mapa:
             print("                    " + self.ciudades[2] + "                         " + "                    " + self.ciudades[3] + "                         ")
 
             print("")
-    
-    def setCeldaJugador(self,x,y):
-        self.matriz[x][y] = 'J'     # Esto cambiarlo       
-
-    def vaciarCelda(self,x,y):
-        self.matriz[x][y] = ' '         
-    
+          
     def getCelda(self,x,y):
         return self.matriz[x][y]
-    
-    def limpiar(self):
-        for i in range(20):
-            for j in range(20):
-                if self.matriz.getCelda(i,j) == 'J':
-                    self.matriz.vaciarCelda(i,j)
+
+    def getJugadores(self):
+        return self.jugadores
     
     def Climas(self,climas):
         for i in range(len(climas)):
@@ -61,6 +55,17 @@ class Mapa:
     def Ciudades(self,ciudades):
         for i in range(len(ciudades)):
             self.ciudades.append(ciudades[i])
+
+    def Jugadores(self,jugadores):
+        for i in range(len(jugadores)):
+            yaEsta = False
+
+            for j in range(len(self.jugadores)):
+                if self.jugadores[j] == jugadores[i]:
+                    yaEsta = True
+            
+            if yaEsta == False:
+                self.jugadores.append(jugadores[i])
             
     def matrizToString(self):
         cadena = ""
@@ -71,3 +76,34 @@ class Mapa:
                 else:
                     cadena += self.matriz[i][j] + ","
             cadena += ";"
+
+    def incorporarJugador(self,token):
+        for i in range(len(self.jugadores)):
+            if self.jugadores[i].obtenerTOKEN() == token:
+                if self.matriz[self.jugadores[i].obtenerPosicion().getX()][self.jugadores[i].obtenerPosicion().getY()] == ' ':
+                    self.matriz[self.jugadores[i].obtenerPosicion().getX()][self.jugadores[i].obtenerPosicion().getY()] = 'J'     # Mirar como identificar en el mapa a los jugadores                           ##### IMPORTANTE #####
+                else:
+                    while 1:
+                        nuevaPosicion = Posicion(random.randint(0,19),random.randint(0,19))
+
+                        if self.matriz[nuevaPosicion.getX()][nuevaPosicion.getY()] == ' ':
+                            self.jugadores[i].asignarPosicion(nuevaPosicion)
+                            self.matriz[self.jugadores[i].obtenerPosicion().getX()][self.jugadores[i].obtenerPosicion().getY()] = 'J'     # Mirar como identificar en el mapa a los jugadores                   ##### IMPORTANTE #####
+                            break
+
+    def limpiarJugador(self,token):
+        for i in range(len(self.jugadores)):
+            if self.jugadores[i].obtenerTOKEN() == token:
+                self.matriz[self.jugadores[i].obtenerPosicion().getX()][self.jugadores[i].obtenerPosicion().getY()] = ' '    
+
+    def moduloW(self,token):
+        self.limpiarJugador(token)
+
+        for i in range(len(self.jugadores)):
+            if self.jugadores[i].obtenerTOKEN() == token:
+                if self.jugadores[i].obtenerPosicion().getX()-1 < 0:     
+                        self.jugadores[i].asignarPosicionX(19)
+                else:
+                    self.jugadores[i].añadirPosicionX(-1)
+                    
+                self.matriz[self.jugadores[i].obtenerPosicion().getX()][self.jugadores[i].obtenerPosicion().getY()] = 'J'

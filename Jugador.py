@@ -3,7 +3,7 @@ from Posicion import *
 
 class Jugador:
     def __init__ (self):
-        self.posicion = Posicion(random.randint(1,20),random.randint(1,20))
+        self.posicion = Posicion(random.randint(0,19),random.randint(0,19))
         self.muerto = False
         self.alias = ""
         self.nivel = ""
@@ -55,3 +55,22 @@ class Jugador:
     
     def vivoMuerto(self):
         return self.muerto
+    
+    def obtenerPosicion(self):
+        return self.posicion
+
+    def asignarPosicion(self,posicion):
+        self.posicion.setX(posicion.getX())
+        self.posicion.setY(posicion.getY())
+    
+    def asignarPosicionX(self,x):
+        self.posicion.setX(x)
+
+    def añadirPosicionX(self,x):
+        self.posicion.addX(x)
+
+    def asignarPosicionY(self,y):
+        self.posicion.setY(y)
+
+    def añadirPosicionY(self,y):
+        self.posicion.addY(y)

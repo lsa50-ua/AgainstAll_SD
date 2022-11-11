@@ -4,7 +4,7 @@ import threading
 import random
 import time
 import copy
-from Mapa import *
+from pruebasMapa import *
 from Jugador import *
 from kafka import KafkaProducer
 from kafka import KafkaConsumer
@@ -23,7 +23,9 @@ def menuPrincipal():
 def obtenerClimas(game):
     obj = socket.socket()
     obj.connect(WEATHER_ADDR)
+    print("")
     print("Conectado al servidor clima.")
+    print("")
 
     ficheroC = open('Ciudades.txt', 'r')
     lineasC = ficheroC.readlines()
@@ -61,6 +63,7 @@ def obtenerClimas(game):
         game.Ciudades(ciudades)     # Guardo las ciudades y sus climas en el mapa
         
     obj.close()
+    print("")
     print("Conexión con el servidor del tiempo cerrada.")
     return lista_climas
 
@@ -156,7 +159,7 @@ if (len(sys.argv) == 5):
                             jugadorConTOKEN.asignarAlias(YATIENEALIAS)
                             jugadorConTOKEN.asignarEC(YATIENEEC)
                             jugadorConTOKEN.asignarNivel(YATIENENIVEL)
-                            jugadorConTOKEN.asignarTOKEN(repr(TOKEN))
+                            jugadorConTOKEN.asignarTOKEN(str(TOKEN))
                             jugadorConTOKEN.asignarContraseña(TIENECONTRA)
                             jugadorConTOKEN.asignarEF(YATIENEEF)
 
@@ -217,7 +220,7 @@ if (len(sys.argv) == 5):
                                         jugadorSinTOKEN.asignarAlias(buscarAlias[1])
                                         jugadorSinTOKEN.asignarEC(buscarEC[1])
                                         jugadorSinTOKEN.asignarNivel(buscarNivel[1])
-                                        jugadorSinTOKEN.asignarTOKEN(repr(TOKEN))
+                                        jugadorSinTOKEN.asignarTOKEN(str(TOKEN))
                                         jugadorSinTOKEN.asignarContraseña(buscarContraseña[1])
                                         jugadorSinTOKEN.asignarEF(buscarEF[1])
 
@@ -249,7 +252,7 @@ if (len(sys.argv) == 5):
 
             if tieneToken:
                 for i in range(len(jugadores_preparados)):
-                    if repr(TOKEN) == jugadores_preparados[i].obtenerTOKEN():
+                    if str(TOKEN) == jugadores_preparados[i].obtenerTOKEN():
                         jugadores_preparados.pop(i)
 
             conn.close()
@@ -260,7 +263,7 @@ if (len(sys.argv) == 5):
 
             if tieneToken:
                 for i in range(len(jugadores_preparados)):
-                    if repr(TOKEN) == jugadores_preparados[i].obtenerTOKEN():
+                    if str(TOKEN) == jugadores_preparados[i].obtenerTOKEN():
                         jugadores_preparados.pop(i)
 
             conn.close()
@@ -277,19 +280,23 @@ if (len(sys.argv) == 5):
         jugadores_preparados = []
         climas = []
         print("Tiempo restante para iniciar partida: ", TIMEOUT," s")
+        print("")
 
         while True:
             if (time.time() - starttime) > TIMEOUT:
                 if len(jugadores_preparados) < 2:
                     print("La partida no se puede iniciar por falta de jugadores, Volviendo al menu...")
+                    print("")
                     break
                 else:
                     if len(climas) != 4:
                         game = Mapa()     # Mapa del juego
+                        game.Jugadores(jugadores_preparados)     # Guardo los jugadores en el mapa
                         climas = obtenerClimas(game)
 
                         if len(climas) != 4:
                             print("Falta o falla algo en Ciudades.txt; Abortando Partida, Volviendo al menu...")
+                            print("")
                             break
 
                         else:
@@ -331,9 +338,15 @@ if (len(sys.argv) == 5):
                                             ficheroTokens.write(tokenJugador + '\n')
                                             ficheroTokens.close()
 
+                                            game.incorporarJugador(tokenJugador)
+
                                         if moverJugador != "ESCAPE":     # ha pulsado ESCAPE
                                             if moverJugador == 'w' or moverJugador == 'W':     # w-W -> ARRIBA
                                                 print("El jugador " + tokenJugador + " ha pulsado la tecla " + moverJugador + ".")
+
+                                                game.moduloW(tokenJugador)
+
+                                                #game.imprimir()
 
                                             elif moverJugador == 's' or moverJugador == 'S':     # s-S -> ABAJO
                                                 print("El jugador " + tokenJugador + " ha pulsado la tecla " + moverJugador + ".")
