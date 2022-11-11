@@ -10,26 +10,34 @@ class Mapa:
         for i in range(20):
             self.matriz.append([0]*20)
 
-        # Rellena la matriz
-            # M -> mina
-            # A -> alimento
-            # "espacio" -> nada/vacío
         for i in range(20):
             for j in range(20):
                 n = random.randint(0,10)
                 if n == 3:
-                    self.matriz[i][j] = 'M'
+                    self.matriz[i][j] = 'M'     # M -> mina
                 elif n == 8:
-                    self.matriz[i][j] = 'A'
+                    self.matriz[i][j] = 'A'     # A -> alimento
                 else:
-                    self.matriz[i][j] = ' '
+                    self.matriz[i][j] = ' '     # "espacio" -> nada/vacío
     
     def imprimir(self):
-        print("#############################################AGAINST_ALL############################################")
-        for i in self.matriz:
-            print(i)
-        print("####################################################################################################")
-        print("")
+        if len(self.ciudades) == 0:     # Por si acaso, para que no pete
+            print("#############################################AGAINST_ALL############################################")
+            for i in self.matriz:
+                print(i)
+            print("####################################################################################################")
+            print("")
+        else:
+            print("                    " + self.ciudades[0] + "                         " + "                    " + self.ciudades[1] + "                         ")
+            print("                                                  "+"#"+"                                                  ")
+            print("#############################################AGAINST_ALL############################################")
+            for i in self.matriz:
+                print(i)
+            print("####################################################################################################")
+            print("                                                  "+"#"+"                                                  ")
+            print("                    " + self.ciudades[2] + "                         " + "                    " + self.ciudades[3] + "                         ")
+
+            print("")
     
     def setCeldaJugador(self,x,y):
         self.matriz[x][y] = 'J'     # Esto cambiarlo       

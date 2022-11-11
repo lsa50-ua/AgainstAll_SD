@@ -190,11 +190,13 @@ if (len(sys.argv) == 5):
                                 if estaElToken == False:
                                     previo = False
 
+                            escribir = False
+
                             with open("Registro.txt", "r") as f:
                                 lines = f.readlines()
                                 lines.pop(0)
 
-                            with open("Registro.txt", "w") as f:     # Cuando se asigna el TOKEN a la última linea, se queda con un salto de linea extra al final, HAY QUE SOLUCIONAR ESTO                      ##### IMPORTANTE #####
+                            with open("Registro.txt", "w") as f:
                                 f.write("#Usuarios")
                                 f.write('\n')
 
@@ -208,8 +210,10 @@ if (len(sys.argv) == 5):
                                         buscarEC = particion[3].split(":")
                                         buscarEF = particion[4].split(":")
 
-                                        f.write('ALIAS:' + buscarAlias[1] + ' CONTRASEÑA:' + buscarContraseña[1] + ' NIVEL:' + buscarNivel[1] + ' EC:' + buscarEC[1] + ' EF:' + buscarEF[1] + ' TOKEN:' + repr(TOKEN))
-                                        f.write('\n')
+                                        MENSAJE = 'ALIAS:' + buscarAlias[1] + ' CONTRASEÑA:' + buscarContraseña[1] + ' NIVEL:' + buscarNivel[1] + ' EC:' + buscarEC[1] + ' EF:' + buscarEF[1] + ' TOKEN:' + repr(TOKEN)
+
+                                        escribir = True
+
                                         print("")
                                         print("El jugador '" + buscarAlias[1] + "' se ha unido a la partida con el TOKEN -> " + repr(TOKEN) + ".")
 
@@ -228,6 +232,9 @@ if (len(sys.argv) == 5):
                                         tieneToken = True
                                     else:
                                         f.write(line)    
+
+                                if escribir:
+                                    f.write('\n' + MENSAJE)     # Se pone al jugador con el nuevo TOKEN al final del tablero, para evitar el error del salto de linea
 
                             if añadidoTOKEN == False:
                                 conn.send("El usuario introducido no existe en la BBDD.".encode(FORMAT))
@@ -300,6 +307,7 @@ if (len(sys.argv) == 5):
                             try:
                                 consumer = KafkaConsumer (topicName, bootstrap_servers = GESTOR_BOOTSTRAP_SERVER)
                                 producer = KafkaProducer(bootstrap_servers = GESTOR_BOOTSTRAP_SERVER)
+
                                 # mandar el mapa generado a todos los jugadores                                                                                                                                 ##### IMPORTANTE #####
 
                                 producer.send('MAPA', "hello".encode(FORMAT))
@@ -310,6 +318,9 @@ if (len(sys.argv) == 5):
                                         movimientoJugador = movimiento.value.decode(FORMAT).split(":")
                                         tokenJugador = movimientoJugador[0]
                                         moverJugador = movimientoJugador[1]
+
+                                        print(moverJugador)
+                                        print(repr(moverJugador))
 
                                         encontrado = False
 
@@ -326,6 +337,8 @@ if (len(sys.argv) == 5):
                                             ficheroTokens = open("Jugando.txt", "a")
                                             ficheroTokens.write(tokenJugador + '\n')
                                             ficheroTokens.close()
+
+                                        
 
                                         #hacer respectivo movimiento en el mapa calcular si se ha pegado con alguien, subido de nivel, explotado mina                                                           ##### IMPORTANTE #####
                                         #producer.send('MAPA', mapa.encode(FORMAT))

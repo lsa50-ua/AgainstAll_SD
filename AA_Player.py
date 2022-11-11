@@ -219,8 +219,10 @@ if (len(sys.argv) == 6):
                                     print("Has ganado")
                                     break
                                 print(mapa.value.decode(FORMAT))
-                                #aqui tiene que imprimir el mapa
+
+                                #aqui tiene que imprimir el mapa                                                                                                                                                ##### IMPORTANTE #####
                                 #print ("%s:%d:%d: key=%s value=%s" % (message.topic, message.partition,message.offset, message.key,message.value.decode('utf-8')))
+
                                 while 1:
                                     if msvcrt.kbhit():
                                         entradaTec = msvcrt.getch()
