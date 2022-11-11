@@ -75,7 +75,9 @@ class Mapa:
                     cadena += self.matriz[i][j]
                 else:
                     cadena += self.matriz[i][j] + ","
-            cadena += ";"
+            if i != 19:
+                cadena += ";"
+        return cadena
 
     def incorporarJugador(self,token):
         for i in range(len(self.jugadores)):

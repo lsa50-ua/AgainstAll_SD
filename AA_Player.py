@@ -38,6 +38,29 @@ def editar():
     print("Contraseña (3)")
     print("")
 
+def stringToMatrix(cadena):
+    matriz = []
+    for i in range(20):
+        matriz.append([0]*20)
+    filas = cadena.split(';')
+    for i in range(len(filas)):
+        elementosFila = filas[i].split(',')
+        for j in range(len(elementosFila)):
+            matriz[i][j] = elementosFila[j]
+
+    return matriz
+
+def imprimir(matriz):
+        print()        
+        print("                                                  "+"#"+"                                                  ")
+        print("#############################################AGAINST_ALL############################################")
+        for i in matriz:
+            print(i)
+        print("####################################################################################################")
+        print("                                                  "+"#"+"                                                  ")
+
+        print()
+
 if (len(sys.argv) == 6):
     ENGINE_IP = sys.argv[1]
     ENGINE_PUERTO = int(sys.argv[2])
@@ -212,17 +235,20 @@ if (len(sys.argv) == 6):
                             consumer = KafkaConsumer (topicName, bootstrap_servers = GESTOR_BOOTSTRAP_SERVER)
                             producer = KafkaProducer(bootstrap_servers = GESTOR_BOOTSTRAP_SERVER)
                             topicName = 'PLAYERS'
-                            print     # ?? Esto que es
                             for mapa in consumer:
                                 
                                 system("cls")
+                                print("Mapa: " + '\n')
                                 if mapa.value.decode(FORMAT) == (TOKEN + ":FIN"):
                                     print("Has perdido")
                                     break
-                                if mapa.value.decode(FORMAT) == (TOKEN + ":GANADOR"):
+                                elif mapa.value.decode(FORMAT) == (TOKEN + ":GANADOR"):
                                     print("Has ganado")
                                     break
-                                print(mapa.value.decode(FORMAT))
+                                else:
+                                    matrix = stringToMatrix(mapa.value.decode(FORMAT))
+                                    imprimir(matrix)
+                                
 
                                 #aqui tiene que imprimir el mapa                                                                                                                                                ##### IMPORTANTE #####
                                 #print ("%s:%d:%d: key=%s value=%s" % (message.topic, message.partition,message.offset, message.key,message.value.decode('utf-8')))

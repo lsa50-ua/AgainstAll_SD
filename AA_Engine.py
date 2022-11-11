@@ -313,7 +313,8 @@ if (len(sys.argv) == 5):
 
                                 # mandar el mapa generado a todos los jugadores                                                                                                                                 ##### IMPORTANTE #####
 
-                                producer.send('MAPA', "hello".encode(FORMAT))
+                                cadena = game.matrizToString()
+                                producer.send('MAPA', cadena.encode(FORMAT))
 
                                 while acabada != True:
                                     for movimiento in consumer:
@@ -376,7 +377,8 @@ if (len(sys.argv) == 5):
 
                                         #hacer respectivo movimiento en el mapa calcular si se ha pegado con alguien, subido de nivel, explotado mina                                                           ##### IMPORTANTE #####
                                         #producer.send('MAPA', mapa.encode(FORMAT))
-                                        producer.send('MAPA', "adios".encode(FORMAT))
+                                        cadena = game.matrizToString()
+                                        producer.send('MAPA', cadena.encode(FORMAT))
 
                                         # Esto hay que cambiarlo, ya que "jugadores_preparados" ahora es un array de jugadores y no de TOKENS                                                                   ##### IMPORTANTE #####
                                         if len(pInGame) == 1:
