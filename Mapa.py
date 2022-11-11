@@ -1,9 +1,5 @@
-from Posicion import *
 import random
-from os import system     # Para limpiar el terminal
 
-# Jugador -> representado por un elemento que indica su identidad y nivel
-# NPC -> representado por un elemento que indica su nivel
 class Mapa:
     def __init__(self):
         self.matriz = []

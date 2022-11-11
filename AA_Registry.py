@@ -50,7 +50,8 @@ if (len(sys.argv) == 2):
                         
                         if cambiar == True:
                             f = open('Registro.txt','a')    # 'a' significa "append" y nos permite escribir en un fichero ya creado
-                            f.write('\n' + 'ALIAS:'+ ALIAS + ' CONTRASEÑA:' + PASSWORD + ' NIVEL:' + NIVEL + ' EC:' + EC + ' EF:' + EF + ' TOKEN:' + repr(0))    # '\n' para escribir en un línea abajo
+                            f.write('\n')
+                            f.write('ALIAS:'+ ALIAS + ' CONTRASEÑA:' + PASSWORD + ' NIVEL:' + NIVEL + ' EC:' + EC + ' EF:' + EF + ' TOKEN:' + repr(0))    # '\n' para escribir en un línea abajo
                             f.close()
 
                             print("")
@@ -69,7 +70,8 @@ if (len(sys.argv) == 2):
                                 lines.pop(0)
 
                             with open("Registro.txt", "w") as f:
-                                f.write("#Usuarios"+'\n')
+                                f.write("#Usuarios")
+                                f.write('\n')
 
                                 for line in lines:
                                     particion = line.split(" ")
@@ -103,7 +105,8 @@ if (len(sys.argv) == 2):
                                 lines.pop(0)
 
                             with open("Registro.txt", "w") as f:
-                                f.write("#Usuarios"+'\n')
+                                f.write("#Usuarios")
+                                f.write('\n')
 
                                 for line in lines:
                                     particion = line.split(" ")
@@ -137,7 +140,8 @@ if (len(sys.argv) == 2):
                                 lines.pop(0)
 
                             with open("Registro.txt", "w") as f:
-                                f.write("#Usuarios"+'\n')
+                                f.write("#Usuarios")
+                                f.write('\n')
 
                                 for line in lines:
                                     particion = line.split(" ")

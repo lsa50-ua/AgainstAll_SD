@@ -13,8 +13,8 @@ FORMAT = 'utf-8'
 HEADER = 64
 SERVER = socket.gethostbyname(socket.gethostname())
 GESTOR_BOOTSTRAP_SERVER = ['localhost:9092']
-TIMEOUT = 30
-socket.setdefaulttimeout(30)
+TIMEOUT = 10
+socket.setdefaulttimeout(10)
 
 def menuPrincipal():
     print("Nueva partida (1)")
@@ -131,6 +131,9 @@ if (len(sys.argv) == 5):
                             particion = line.split(" ")
                             buscarAlias = particion[0].split(":")
                             buscarContraseña = particion[1].split(":")
+                            buscarNivel = particion[2].split(":")
+                            buscarEC = particion[3].split(":")
+                            buscaref = particion[4].split(":")
                             buscarTOKEN = particion[5].split(":")
 
                             if buscarAlias[1] == ALIAS and buscarContraseña[1] == PASSWORD:
@@ -140,6 +143,11 @@ if (len(sys.argv) == 5):
 
                                 if revisarToken != "0":
                                     YATIENETOKEN = revisarToken
+                                    YATIENEALIAS = buscarAlias[1]
+                                    YATIENENIVEL = buscarNivel[1]
+                                    YATIENEEC = buscarEC[1]
+                                    YATIENEEF = buscaref[1]
+                                    TIENECONTRA = buscarContraseña[1]
                                     distintoDe0 = True
 
                         if distintoDe0:
@@ -147,7 +155,17 @@ if (len(sys.argv) == 5):
                             conn.send(mensaje.encode(FORMAT))
                             print("El jugador '" + ALIAS + "' se ha unido a la partida con el TOKEN -> " + repr(YATIENETOKEN) + ".")
                             TOKEN = YATIENETOKEN
-                            jugadores_preparados.append(TOKEN)     # En vez del TOKEN, crear un jugador con las carcateristicas y almacenarlo
+
+                            jugadorConTOKEN = Jugador()
+                            jugadorConTOKEN.asignarAlias(YATIENEALIAS)
+                            jugadorConTOKEN.asignarEC(YATIENEEC)
+                            jugadorConTOKEN.asignarNivel(YATIENENIVEL)
+                            jugadorConTOKEN.asignarTOKEN(repr(TOKEN))
+                            jugadorConTOKEN.asignarContraseña(TIENECONTRA)
+                            jugadorConTOKEN.asignarEF(YATIENEEF)
+
+                            jugadores_preparados.append(jugadorConTOKEN)
+
                             tieneToken = True
 
                         elif encontrado:
@@ -176,8 +194,9 @@ if (len(sys.argv) == 5):
                                 lines = f.readlines()
                                 lines.pop(0)
 
-                            with open("Registro.txt", "w") as f:
-                                f.write("#Usuarios"+'\n')
+                            with open("Registro.txt", "w") as f:     # Cuando se asigna el TOKEN a la última linea, se queda con un salto de linea extra al final, HAY QUE SOLUCIONAR ESTO                      ##### IMPORTANTE #####
+                                f.write("#Usuarios")
+                                f.write('\n')
 
                                 for line in lines:
                                     particion = line.split(" ")
@@ -189,12 +208,21 @@ if (len(sys.argv) == 5):
                                         buscarEC = particion[3].split(":")
                                         buscarEF = particion[4].split(":")
 
-                                        f.write('ALIAS:' + buscarAlias[1] + ' CONTRASEÑA:' + buscarContraseña[1] + ' NIVEL:' + buscarNivel[1] + ' EC:' + buscarEC[1] + ' EF:' + buscarEF[1] + ' TOKEN:' + repr(TOKEN) + '\n')
-
+                                        f.write('ALIAS:' + buscarAlias[1] + ' CONTRASEÑA:' + buscarContraseña[1] + ' NIVEL:' + buscarNivel[1] + ' EC:' + buscarEC[1] + ' EF:' + buscarEF[1] + ' TOKEN:' + repr(TOKEN))
+                                        f.write('\n')
                                         print("")
                                         print("El jugador '" + buscarAlias[1] + "' se ha unido a la partida con el TOKEN -> " + repr(TOKEN) + ".")
-                                        jugadores_preparados.append(TOKEN)     # En vez del TOKEN, crear un jugador con las carcateristicas y almacenarlo
-                                        mensaje = TOKEN
+
+                                        jugadorSinTOKEN = Jugador()
+                                        jugadorSinTOKEN.asignarAlias(buscarAlias[1])
+                                        jugadorSinTOKEN.asignarEC(buscarEC[1])
+                                        jugadorSinTOKEN.asignarNivel(buscarNivel[1])
+                                        jugadorSinTOKEN.asignarTOKEN(repr(TOKEN))
+                                        jugadorSinTOKEN.asignarContraseña(buscarContraseña[1])
+                                        jugadorSinTOKEN.asignarEF(buscarEF[1])
+
+                                        jugadores_preparados.append(jugadorSinTOKEN)     
+                                        mensaje = repr(TOKEN)
                                         conn.send(mensaje.encode(FORMAT))
                                         añadidoTOKEN = True
                                         tieneToken = True
@@ -217,7 +245,9 @@ if (len(sys.argv) == 5):
             print("")
 
             if tieneToken:
-                jugadores_preparados.remove(TOKEN)     # En vez del TOKEN, crear un jugador con las carcateristicas y almacenarlo
+                for i in range(len(jugadores_preparados)):
+                    if repr(TOKEN) == jugadores_preparados[i].obtenerTOKEN():
+                        jugadores_preparados.pop(i)
 
             conn.close()
 
@@ -226,7 +256,9 @@ if (len(sys.argv) == 5):
             print(f"Se ha forzado la conexión y ha terminado en: {addr} ")
 
             if tieneToken:
-                jugadores_preparados.remove(TOKEN)     # En vez del TOKEN, crear un jugador con las carcateristicas y almacenarlo
+                for i in range(len(jugadores_preparados)):
+                    if repr(TOKEN) == jugadores_preparados[i].obtenerTOKEN():
+                        jugadores_preparados.pop(i)
 
             conn.close()
 
@@ -268,7 +300,7 @@ if (len(sys.argv) == 5):
                             try:
                                 consumer = KafkaConsumer (topicName, bootstrap_servers = GESTOR_BOOTSTRAP_SERVER)
                                 producer = KafkaProducer(bootstrap_servers = GESTOR_BOOTSTRAP_SERVER)
-                                # mandar el mapa generado a todos los jugadores
+                                # mandar el mapa generado a todos los jugadores                                                                                                                                 ##### IMPORTANTE #####
 
                                 producer.send('MAPA', "hello".encode(FORMAT))
 
@@ -295,13 +327,14 @@ if (len(sys.argv) == 5):
                                             ficheroTokens.write(tokenJugador + '\n')
                                             ficheroTokens.close()
 
-                                        #hacer respectivo movimiento en el mapa calcular si se ha pegado con alguien, subido de nivel, explotado mina
+                                        #hacer respectivo movimiento en el mapa calcular si se ha pegado con alguien, subido de nivel, explotado mina                                                           ##### IMPORTANTE #####
                                         #producer.send('MAPA', mapa.encode(FORMAT))
                                         producer.send('MAPA', "adios".encode(FORMAT))
 
+                                        # Esto hay que cambiarlo, ya que "jugadores_preparados" ahora es un array de jugadores y no de TOKENS                                                                   ##### IMPORTANTE #####
                                         if len(pInGame) == 1:
-                                            print("Ha ganado el jugador con el Token: ",jugadores_preparados[0])     # En vez del TOKEN, crear un jugador con las carcateristicas y almacenarlo
-                                            ganador = jugadores_preparados[0] + ":GANADOR"     # En vez del TOKEN, crear un jugador con las carcateristicas y almacenarlo
+                                            print("Ha ganado el jugador con el Token: ",jugadores_preparados[0])     
+                                            ganador = jugadores_preparados[0] + ":GANADOR"     
                                             producer.send('MAPA', ganador.encode(FORMAT))
                                             acabada = True
                                             break
@@ -332,8 +365,6 @@ if (len(sys.argv) == 5):
                         conn.send("Demasiadas conexiones. Tendrás que esperar a que alguien se vaya".encode(FORMAT))
                         conn.close()
                         CONEX_ACTUALES = threading.active_count()-1
-
-            
 
     ######################### MAIN ##########################
 
