@@ -199,16 +199,20 @@ if (len(sys.argv) == 6):
                     TOKEN = existe
                     print("Se te ha asignado el TOKEN -> " + repr(TOKEN))
                     print("")
+                    print("Movimientos validos para la partida: ")
+                    print("  a-Izquierda  d-Derecha  s-Abajo  w-arriba")
+                    print("También puedes ir en diagonal con las teclas q e z c")
+                    print("")
                     send("ESPERA", clientEngine)
                     respuesta = clientEngine.recv(2048).decode(FORMAT)    # Se queda esperando a recibir el mensaje de que va a empezar la partida
-                    if respuesta == "Tiempo de espera finalizado Iniciando partida":
+                    if respuesta == "Tiempo de espera finalizado. Iniciando partida.":
                         topicName = 'MAPA'
                         
                         try:
                             consumer = KafkaConsumer (topicName, bootstrap_servers = GESTOR_BOOTSTRAP_SERVER)
                             producer = KafkaProducer(bootstrap_servers = GESTOR_BOOTSTRAP_SERVER)
                             topicName = 'PLAYERS'
-                            print
+                            print     # ?? Esto que es
                             for mapa in consumer:
                                 
                                 system("cls")
@@ -226,12 +230,18 @@ if (len(sys.argv) == 6):
                                 while 1:
                                     if msvcrt.kbhit():
                                         entradaTec = msvcrt.getch()
-                                        msg = TOKEN + ":" + entradaTec.decode(FORMAT)
-                                        producer.send(topicName, msg.encode(FORMAT))
+
+                                        if ord(entradaTec) != 27:
+                                            msg = TOKEN + ":" + entradaTec.decode(FORMAT)
+                                            producer.send(topicName, msg.encode(FORMAT))
+                                        else:
+                                            msg = TOKEN + ":" + "ESCAPE"
+                                            producer.send(topicName, msg.encode(FORMAT))
+
                                         break
                                 
                         except :
-                            print("Casca el envio o recibimientos de datos de Kafka")
+                            print("Casca el envio o recibimientos de datos de Kafka.")
                             pass
 
                         #limpio el buffer de teclas
