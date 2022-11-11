@@ -61,3 +61,13 @@ class Mapa:
     def Ciudades(self,ciudades):
         for i in range(len(ciudades)):
             self.ciudades.append(ciudades[i])
+            
+    def matrizToString(self):
+        cadena = ""
+        for i in range(20):
+            for j in range(20):
+                if j == 19:
+                    cadena += self.matriz[i][j]
+                else:
+                    cadena += self.matriz[i][j] + ","
+            cadena += ";"
