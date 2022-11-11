@@ -2,7 +2,8 @@ import socket
 import sys
 import random
 import msvcrt
-
+import threading
+import time
 from Posicion import *
 from Jugador import *
 from Mapa import *
@@ -60,6 +61,25 @@ def imprimir(matriz):
         print("                                                  "+"#"+"                                                  ")
 
         print()
+
+def enviarMovs():
+    global stopPedirMovs
+    producer = KafkaProducer(bootstrap_servers = GESTOR_BOOTSTRAP_SERVER)
+    topicName = 'PLAYERS'
+    while 1:
+        if stopPedirMovs == True:
+            break
+        else:
+            if msvcrt.kbhit():
+                entradaTec = msvcrt.getch()
+
+                if ord(entradaTec) != 27:
+                    msg = TOKEN + ":" + entradaTec.decode(FORMAT)
+                    producer.send(topicName, msg.encode(FORMAT))
+                else:
+                    msg = TOKEN + ":" + "ESCAPE"
+                    producer.send(topicName, msg.encode(FORMAT))
+
 
 if (len(sys.argv) == 6):
     ENGINE_IP = sys.argv[1]
@@ -230,20 +250,24 @@ if (len(sys.argv) == 6):
                     respuesta = clientEngine.recv(2048).decode(FORMAT)    # Se queda esperando a recibir el mensaje de que va a empezar la partida
                     if respuesta == "Tiempo de espera finalizado. Iniciando partida.":
                         topicName = 'MAPA'
-                        
+                        global stopPedirMovs
+                        stopPedirMovs = False
+                        t1 = threading.Thread(target=enviarMovs, args=())
+                        t1.start()
                         try:
                             consumer = KafkaConsumer (topicName, bootstrap_servers = GESTOR_BOOTSTRAP_SERVER)
-                            producer = KafkaProducer(bootstrap_servers = GESTOR_BOOTSTRAP_SERVER)
-                            topicName = 'PLAYERS'
+
                             for mapa in consumer:
                                 
                                 system("cls")
                                 print("Mapa: " + '\n')
                                 if mapa.value.decode(FORMAT) == (TOKEN + ":FIN"):
                                     print("Has perdido")
+                                    stopPedirMovs = True
                                     break
                                 elif mapa.value.decode(FORMAT) == (TOKEN + ":GANADOR"):
                                     print("Has ganado")
+                                    stopPedirMovs = True
                                     break
                                 else:
                                     matrix = stringToMatrix(mapa.value.decode(FORMAT))
@@ -253,22 +277,15 @@ if (len(sys.argv) == 6):
                                 #aqui tiene que imprimir el mapa                                                                                                                                                ##### IMPORTANTE #####
                                 #print ("%s:%d:%d: key=%s value=%s" % (message.topic, message.partition,message.offset, message.key,message.value.decode('utf-8')))
 
-                                while 1:
-                                    if msvcrt.kbhit():
-                                        entradaTec = msvcrt.getch()
-
-                                        if ord(entradaTec) != 27:
-                                            msg = TOKEN + ":" + entradaTec.decode(FORMAT)
-                                            producer.send(topicName, msg.encode(FORMAT))
-                                        else:
-                                            msg = TOKEN + ":" + "ESCAPE"
-                                            producer.send(topicName, msg.encode(FORMAT))
-
-                                        break
                                 
                         except :
                             print("Casca el envio o recibimientos de datos de Kafka.")
+                            stopPedirMovs = True
                             pass
+
+                        
+
+                        time.sleep(1) #para que finalize el hilo de pedir teclas
 
                         #limpio el buffer de teclas
                         while msvcrt.kbhit():
