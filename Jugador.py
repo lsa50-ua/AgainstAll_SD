@@ -4,7 +4,6 @@ from Posicion import *
 class Jugador:
     def __init__ (self):
         self.posicion = Posicion(random.randint(0,19),random.randint(0,19))
-        self.muerto = False
         self.alias = ""
         self.nivel = ""
         self.EF = ""
@@ -19,6 +18,9 @@ class Jugador:
         # El nivel mínimo es 0
         if self.nivel < 0:
             self.nivel = 0
+
+    def aumentarNivel(self, cantidad):
+        self.nivel += cantidad
 
     def asignarAlias(self,alias):
         self.alias = alias
@@ -49,12 +51,6 @@ class Jugador:
     
     def asignarContraseña(self,contraseña):
         self.contraseña = contraseña
-
-    def matar(self):
-        self.muerto = True
-    
-    def vivoMuerto(self):
-        return self.muerto
     
     def obtenerPosicion(self):
         return self.posicion

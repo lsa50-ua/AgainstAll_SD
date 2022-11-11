@@ -40,8 +40,8 @@ class Mapa:
             print("                                                  "+"#"+"                                                  ")
             print("                    " + self.ciudades[2] + "                         " + "                    " + self.ciudades[3] + "                         ")
 
-            print("")      
-    
+            print("")
+          
     def getCelda(self,x,y):
         return self.matriz[x][y]
 
@@ -55,7 +55,7 @@ class Mapa:
     def Ciudades(self,ciudades):
         for i in range(len(ciudades)):
             self.ciudades.append(ciudades[i])
-    
+
     def Jugadores(self,jugadores):
         for i in range(len(jugadores)):
             yaEsta = False
@@ -75,7 +75,9 @@ class Mapa:
                     cadena += self.matriz[i][j]
                 else:
                     cadena += self.matriz[i][j] + ","
-            cadena += ";"
+            if i != 19:
+                cadena += ";"
+        return cadena
 
     def incorporarJugador(self,token):
         for i in range(len(self.jugadores)):
@@ -97,21 +99,160 @@ class Mapa:
                 self.matriz[self.jugadores[i].obtenerPosicion().getX()][self.jugadores[i].obtenerPosicion().getY()] = ' '    
 
     def moduloW(self,token):
+        for i in range(len(self.jugadores)):
+            if self.jugadores[i].obtenerTOKEN() == token:
+
+                posicionNueva = Posicion(self.jugadores[i].obtenerPosicion().getX(),self.jugadores[i].obtenerPosicion().getY())
+
+                if posicionNueva.getX()-1 < 0:     
+                        posicionNueva.setX(19)
+                else:
+                    posicionNueva.addX(-1)
+
+                if self.matriz[posicionNueva.getX()][posicionNueva.getY()] == 'M':
+                    self.limpiarJugador(token)
+                    self.matriz[posicionNueva.getX()][posicionNueva.getY()] = ' '
+
+                    for j in range(len(self.jugadores)):
+                        if token == self.jugadores[j].obtenerTOKEN():
+                            self.jugadores.pop(j)
+                
+                elif self.matriz[posicionNueva.getX()][posicionNueva.getY()] == 'A':
+                    self.limpiarJugador(token)
+                    self.matriz[posicionNueva.getX()][posicionNueva.getY()] = 'J'
+
+                    self.jugadores[i].asignarPosicion(posicionNueva)
+
+                    for j in range(len(self.jugadores)):
+                        if token == self.jugadores[j].obtenerTOKEN():
+                            self.jugadores[j].aumentarNivel(1)
+
+                #elif self.matriz[self.jugadores[i].obtenerPosicion().getX()][self.jugadores[i].obtenerPosicion().getY()] == 'J':
+                    ######## SEGUIR
+
+                else:
+                    self.limpiarJugador(token)
+                    self.jugadores[i].asignarPosicion(posicionNueva)
+                    self.matriz[posicionNueva.getX()][posicionNueva.getY()] = 'J'
+
+    def moduloS(self,token):
         self.limpiarJugador(token)
 
         for i in range(len(self.jugadores)):
             if self.jugadores[i].obtenerTOKEN() == token:
+
+                if self.jugadores[i].obtenerPosicion().getX()+1 > 19:     
+                        self.jugadores[i].asignarPosicionX(0)
+                else:
+                    self.jugadores[i].añadirPosicionX(1)
+                    
+                self.matriz[self.jugadores[i].obtenerPosicion().getX()][self.jugadores[i].obtenerPosicion().getY()] = 'J'
+    
+    def moduloA(self,token):
+        self.limpiarJugador(token)
+
+        for i in range(len(self.jugadores)):
+            if self.jugadores[i].obtenerTOKEN() == token:
+
+                if self.jugadores[i].obtenerPosicion().getY()-1 < 0:     
+                        self.jugadores[i].asignarPosicionY(19)
+                else:
+                    self.jugadores[i].añadirPosicionY(-1)
+                    
+                self.matriz[self.jugadores[i].obtenerPosicion().getX()][self.jugadores[i].obtenerPosicion().getY()] = 'J'
+
+    def moduloD(self,token):
+        self.limpiarJugador(token)
+
+        for i in range(len(self.jugadores)):
+            if self.jugadores[i].obtenerTOKEN() == token:
+
+                if self.jugadores[i].obtenerPosicion().getY()+1 > 19:     
+                        self.jugadores[i].asignarPosicionY(0)
+                else:
+                    self.jugadores[i].añadirPosicionY(1)
+                    
+                self.matriz[self.jugadores[i].obtenerPosicion().getX()][self.jugadores[i].obtenerPosicion().getY()] = 'J'
+
+    def moduloE(self,token):
+        self.limpiarJugador(token)
+
+        for i in range(len(self.jugadores)):
+            if self.jugadores[i].obtenerTOKEN() == token:
+
                 if self.jugadores[i].obtenerPosicion().getX()-1 < 0:     
                         self.jugadores[i].asignarPosicionX(19)
+                        self.jugadores[i].añadirPosicionY(1)
+
+                elif self.jugadores[i].obtenerPosicion().getY()+1 > 19:     
+                        self.jugadores[i].asignarPosicionY(0)
+                        self.jugadores[i].añadirPosicionX(-1)
+
                 else:
+                    self.jugadores[i].añadirPosicionY(1)
                     self.jugadores[i].añadirPosicionX(-1)
                     
                 self.matriz[self.jugadores[i].obtenerPosicion().getX()][self.jugadores[i].obtenerPosicion().getY()] = 'J'
 
+    def moduloQ(self,token):
+        self.limpiarJugador(token)
 
+        for i in range(len(self.jugadores)):
+            if self.jugadores[i].obtenerTOKEN() == token:
 
+                if self.jugadores[i].obtenerPosicion().getX()-1 < 0:     
+                        self.jugadores[i].asignarPosicionX(19)
+                        self.jugadores[i].añadirPosicionY(-1)
 
+                elif self.jugadores[i].obtenerPosicion().getY()-1 < 0:     
+                        self.jugadores[i].asignarPosicionY(19)
+                        self.jugadores[i].añadirPosicionX(-1)
 
+                else:
+                    self.jugadores[i].añadirPosicionY(-1)
+                    self.jugadores[i].añadirPosicionX(-1)
+                    
+                self.matriz[self.jugadores[i].obtenerPosicion().getX()][self.jugadores[i].obtenerPosicion().getY()] = 'J'
+
+    def moduloZ(self,token):
+        self.limpiarJugador(token)
+
+        for i in range(len(self.jugadores)):
+            if self.jugadores[i].obtenerTOKEN() == token:
+
+                if self.jugadores[i].obtenerPosicion().getX()+1 > 19:     
+                        self.jugadores[i].asignarPosicionX(0)
+                        self.jugadores[i].añadirPosicionY(-1)
+
+                elif self.jugadores[i].obtenerPosicion().getY()-1 < 0:     
+                        self.jugadores[i].asignarPosicionY(19)
+                        self.jugadores[i].añadirPosicionX(1)
+
+                else:
+                    self.jugadores[i].añadirPosicionY(-1)
+                    self.jugadores[i].añadirPosicionX(1)
+                    
+                self.matriz[self.jugadores[i].obtenerPosicion().getX()][self.jugadores[i].obtenerPosicion().getY()] = 'J'
+
+    def moduloC(self,token):
+        self.limpiarJugador(token)
+
+        for i in range(len(self.jugadores)):
+            if self.jugadores[i].obtenerTOKEN() == token:
+
+                if self.jugadores[i].obtenerPosicion().getX()+1 > 19:     
+                        self.jugadores[i].asignarPosicionX(0)
+                        self.jugadores[i].añadirPosicionY(1)
+
+                elif self.jugadores[i].obtenerPosicion().getY()+1 > 19:     
+                        self.jugadores[i].asignarPosicionY(0)
+                        self.jugadores[i].añadirPosicionX(1)
+
+                else:
+                    self.jugadores[i].añadirPosicionY(1)
+                    self.jugadores[i].añadirPosicionX(1)
+                    
+                self.matriz[self.jugadores[i].obtenerPosicion().getX()][self.jugadores[i].obtenerPosicion().getY()] = 'J'
 
 
 """ game = Mapa()

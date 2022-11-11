@@ -313,7 +313,8 @@ if (len(sys.argv) == 5):
 
                                 # mandar el mapa generado a todos los jugadores                                                                                                                                 ##### IMPORTANTE #####
 
-                                producer.send('MAPA', "hello".encode(FORMAT))
+                                cadena = game.matrizToString()
+                                producer.send('MAPA', cadena.encode(FORMAT))
 
                                 while acabada != True:
                                     for movimiento in consumer:
@@ -343,40 +344,59 @@ if (len(sys.argv) == 5):
                                         if moverJugador != "ESCAPE":     # ha pulsado ESCAPE
                                             if moverJugador == 'w' or moverJugador == 'W':     # w-W -> ARRIBA
                                                 print("El jugador " + tokenJugador + " ha pulsado la tecla " + moverJugador + ".")
-
                                                 game.moduloW(tokenJugador)
-
-                                                #game.imprimir()
 
                                             elif moverJugador == 's' or moverJugador == 'S':     # s-S -> ABAJO
                                                 print("El jugador " + tokenJugador + " ha pulsado la tecla " + moverJugador + ".")
+                                                game.moduloS(tokenJugador)
                                     
                                             elif moverJugador == 'a' or moverJugador == 'A':     # a-A -> IZQUIERDA
                                                 print("El jugador " + tokenJugador + " ha pulsado la tecla " + moverJugador + ".")
+                                                game.moduloA(tokenJugador)
 
                                             elif moverJugador == 'd' or moverJugador == 'D':      # d-D -> DERECHA
                                                 print("El jugador " + tokenJugador + " ha pulsado la tecla " + moverJugador + ".")
+                                                game.moduloD(tokenJugador)
 
                                             elif moverJugador == 'e' or moverJugador == 'E':      # e-E -> ARRIBA-DERECHA
                                                 print("El jugador " + tokenJugador + " ha pulsado la tecla " + moverJugador + ".")
+                                                game.moduloE(tokenJugador)
 
                                             elif moverJugador == 'q' or moverJugador == 'Q':      # q-Q -> ARRIBA-IZQUIERDA
                                                 print("El jugador " + tokenJugador + " ha pulsado la tecla " + moverJugador + ".")
+                                                game.moduloQ(tokenJugador)
                                             
                                             elif moverJugador == 'z' or moverJugador == 'Z':      # z-Z -> ABAJO-IZQUIERDA
                                                 print("El jugador " + tokenJugador + " ha pulsado la tecla " + moverJugador + ".")
+                                                game.moduloZ(tokenJugador)
 
                                             elif moverJugador == 'c' or moverJugador == 'C':      # c-C -> ABAJO-DERECHA
                                                 print("El jugador " + tokenJugador + " ha pulsado la tecla " + moverJugador + ".")
+                                                game.moduloC(tokenJugador)
 
                                             else:
-                                                print("El jugador " + tokenJugador + " ha pulsado una tecla incorrecta.")     # Enviar un mensaje al jugador??
+                                                print("El jugador " + tokenJugador + " ha pulsado una tecla incorrecta.")     # Enviar un mensaje al jugador??                                            
+
+                                            jugadores_preparados = game.getJugadores()     # Actualizo la lista de jugadores por si ha muerto alguno
+
+                                            muerto = True
+
+                                            for i in range(len(jugadores_preparados)):
+                                                if jugadores_preparados[i].obtenerTOKEN() == tokenJugador:
+                                                    muerto = False
+
+                                            if muerto:
+                                                print("El jugador " + tokenJugador + " ha muerto.")     # Enviarle un mensaje al jugador de que ha muerto y no puede jugar. Cerrarlel juego o algo.             ##### IMPORTANTE #####
+
+                                            game.imprimir()
+
                                         else:
                                             print("El jugador " + tokenJugador + " ha decidido abandonar la partida.")     # Hacer lo necesario para que sea eliminado de la partida                            ##### IMPORTANTE ##### 
 
                                         #hacer respectivo movimiento en el mapa calcular si se ha pegado con alguien, subido de nivel, explotado mina                                                           ##### IMPORTANTE #####
                                         #producer.send('MAPA', mapa.encode(FORMAT))
-                                        producer.send('MAPA', "adios".encode(FORMAT))
+                                        cadena = game.matrizToString()
+                                        producer.send('MAPA', cadena.encode(FORMAT))
 
                                         # Esto hay que cambiarlo, ya que "jugadores_preparados" ahora es un array de jugadores y no de TOKENS                                                                   ##### IMPORTANTE #####
                                         if len(pInGame) == 1:
