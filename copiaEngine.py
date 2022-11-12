@@ -67,7 +67,6 @@ def obtenerClimas(game):
     print("Conexión con el servidor del tiempo cerrada.")
     return lista_climas
 
-    
 if (len(sys.argv) == 5):
     PUERTO = int(sys.argv[1])
     MAX_CONEXIONES = int(sys.argv[2])     # Número máximo de jugadores que se puede conectar a la partida
@@ -130,9 +129,8 @@ if (len(sys.argv) == 5):
                             particion = line.split(" ")
                             buscarAlias = particion[0].split(":")
                             buscarContraseña = particion[1].split(":")
-                            buscarNivel = particion[2].split(":")
                             buscarEC = particion[3].split(":")
-                            buscaref = particion[4].split(":")
+                            buscarEF = particion[4].split(":")
                             buscarTOKEN = particion[5].split(":")
 
                             if buscarAlias[1] == ALIAS and buscarContraseña[1] == PASSWORD:
@@ -143,9 +141,9 @@ if (len(sys.argv) == 5):
                                 if revisarToken != "0":
                                     YATIENETOKEN = revisarToken
                                     YATIENEALIAS = buscarAlias[1]
-                                    YATIENENIVEL = buscarNivel[1]
+                                    YATIENENIVEL = 1
                                     YATIENEEC = buscarEC[1]
-                                    YATIENEEF = buscaref[1]
+                                    YATIENEEF = buscarEF[1]
                                     TIENECONTRA = buscarContraseña[1]
                                     distintoDe0 = True
 
@@ -157,11 +155,11 @@ if (len(sys.argv) == 5):
 
                             jugadorConTOKEN = Jugador()
                             jugadorConTOKEN.asignarAlias(YATIENEALIAS)
-                            jugadorConTOKEN.asignarEC(YATIENEEC)
-                            jugadorConTOKEN.asignarNivel(YATIENENIVEL)
+                            jugadorConTOKEN.asignarEC(int(YATIENEEC))
+                            jugadorConTOKEN.asignarNivel(1)
                             jugadorConTOKEN.asignarTOKEN(str(TOKEN))
                             jugadorConTOKEN.asignarContraseña(TIENECONTRA)
-                            jugadorConTOKEN.asignarEF(YATIENEEF)
+                            jugadorConTOKEN.asignarEF(int(YATIENEEF))
                             jugadorConTOKEN.Vivo()
 
                             jugadores_preparados.append(jugadorConTOKEN)
@@ -219,11 +217,11 @@ if (len(sys.argv) == 5):
 
                                         jugadorSinTOKEN = Jugador()
                                         jugadorSinTOKEN.asignarAlias(buscarAlias[1])
-                                        jugadorSinTOKEN.asignarEC(buscarEC[1])
-                                        jugadorSinTOKEN.asignarNivel(buscarNivel[1])
+                                        jugadorSinTOKEN.asignarEC(int(buscarEC[1]))
+                                        jugadorSinTOKEN.asignarNivel(1)
                                         jugadorSinTOKEN.asignarTOKEN(str(TOKEN))
                                         jugadorSinTOKEN.asignarContraseña(buscarContraseña[1])
-                                        jugadorSinTOKEN.asignarEF(buscarEF[1])
+                                        jugadorSinTOKEN.asignarEF(int(buscarEF[1]))
                                         jugadorSinTOKEN.Vivo()
 
                                         jugadores_preparados.append(jugadorSinTOKEN)     
@@ -295,6 +293,7 @@ if (len(sys.argv) == 5):
         global jugadores_preparados
         jugadores_preparados = []
         climas = []
+        listaNPC = []
         print("Tiempo restante para iniciar partida: ", TIMEOUT," s")
         print("")
 
@@ -312,6 +311,8 @@ if (len(sys.argv) == 5):
 
                         for i in range(len(jugadores_preparados)):
                             game.incorporarJugador(jugadores_preparados[i].obtenerTOKEN())     # Pone a todos los jugadores en su posición inicial 
+
+                        jugadores_preparados = game.getJugadores()     # Para que estén actualizados los niveles
 
                         if len(climas) != 4:
                             print("Falta o falla algo en Ciudades.txt; Abortando Partida, Volviendo al menu...")
@@ -337,7 +338,7 @@ if (len(sys.argv) == 5):
                                     for movimiento in consumer:
                                         movimientoJugador = movimiento.value.decode(FORMAT).split(":")
                                         tokenJugador = movimientoJugador[0]
-                                        moverJugador = movimientoJugador[1]                                                                                           
+                                        moverJugador = movimientoJugador[1]      
 
                                         if moverJugador != "ESCAPE":     # ha pulsado ESCAPE
                                             if moverJugador == 'w' or moverJugador == 'W':     # w-W -> ARRIBA
@@ -375,9 +376,13 @@ if (len(sys.argv) == 5):
                                             else:
                                                 print("El jugador " + tokenJugador + " ha pulsado una tecla incorrecta.")     # Enviar un mensaje al jugador??
 
-                                            game.matarJugadores()
+                                            listaMsgMuertos = game.matarJugadores()
+                                            
+                                            for i in range(len(listaMsgMuertos)):
+                                                producer.send('MAPA', listaMsgMuertos[i].encode(FORMAT))
+                                            
                                             pInGame = game.getJugadores()     # Enviarle un mensaje al jugador de que ha muerto y no puede jugar. Cerrarle juego o algo.             ##### IMPORTANTE #####
-
+                                            
                                         else:
                                             print("El jugador " + tokenJugador + " ha decidido abandonar la partida.")     # Hacer lo necesario para que sea eliminado de la partida                            ##### IMPORTANTE ##### 
 
@@ -388,10 +393,11 @@ if (len(sys.argv) == 5):
 
                                         # Esto hay que cambiarlo, ya que "pInGame" ahora es un array de jugadores y no de TOKENS                                                                   ##### IMPORTANTE #####
                                         if len(pInGame) == 1:
-                                            print("Ha ganado el jugador con el Token: ",pInGame[0])     
-                                            ganador = pInGame[0] + ":GANADOR"     
+                                            print("Ha ganado el jugador con el Token: ",pInGame[0].obtenerTOKEN())     
+                                            ganador = pInGame[0].obtenerTOKEN() + ":GANADOR"     
                                             producer.send('MAPA', ganador.encode(FORMAT))
                                             acabada = True
+                                            producer.send('MAPA', "FinDePartida".encode(FORMAT))
                                             break
                                 
                             except:
@@ -414,8 +420,8 @@ if (len(sys.argv) == 5):
                         #print("CONEXIONES RESTANTES PARA CERRAR EL SERVICIO: " + repr(MAX_CONEXIONES-CONEX_ACTIVAS))
                         
                     else:
-                        print("OOppsss... DEMASIADAS CONEXIONES. ESPERANDO A QUE ALGUIEN SE VAYA")
-                        conn.send("Demasiadas conexiones. Tendrás que esperar a que alguien se vaya".encode(FORMAT))
+                        print("OOppsss... DEMASIADAS CONEXIONES. ESPERANDO A QUE ALGUIEN SE VAYA.")
+                        conn.send("Demasiadas conexiones. Tendrás que esperar a que alguien se vaya.".encode(FORMAT))
                         conn.close()
                         CONEX_ACTUALES = threading.active_count()-1
 

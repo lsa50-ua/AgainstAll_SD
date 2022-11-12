@@ -6,9 +6,9 @@ class Jugador:
         self.posicion = Posicion(random.randint(0,19),random.randint(0,19))
         self.muerto = ""
         self.alias = ""
-        self.nivel = ""
-        self.EF = ""
-        self.EC = ""
+        self.nivel = 1
+        self.EF = 0
+        self.EC = 0
         self.token = ""
         self.contraseña = ""
 

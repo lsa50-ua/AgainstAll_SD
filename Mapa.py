@@ -69,7 +69,7 @@ class Mapa:
             if yaEsta == False:
                 self.jugadores.append(jugadores[i])
 
-    def matarJugadores(self):
+    def matarJugadores(self): 
         posiciones  = []
         listaMsgMuertos = []
         for i in range(len(self.jugadores)):
@@ -102,14 +102,13 @@ class Mapa:
             if token == self.jugadores[j].obtenerTOKEN():
                 self.jugadores[j].Muerto()
     
-    def Alimento(self,token,posicionNueva,posJugador):
+    def Alimento(self,token,posicionNueva):
         self.limpiarJugador(token)
         self.matriz[posicionNueva.getX()][posicionNueva.getY()] = 'J'
 
-        self.jugadores[posJugador].asignarPosicion(posicionNueva)
-
         for j in range(len(self.jugadores)):
             if token == self.jugadores[j].obtenerTOKEN():
+                self.jugadores[j].asignarPosicion(posicionNueva)
                 self.jugadores[j].aumentarNivel(1)
     
     def JugadorVSJugador(self,token,posicionNueva):
@@ -130,18 +129,81 @@ class Mapa:
                             self.jugadores[x].asignarPosicion(posicionNueva)
                             self.matriz[posicionNueva.getX()][posicionNueva.getY()] = 'J'
 
+    def comprobarClima(self,posicion,token):
+        for i in range(len(self.jugadores)):
+            if self.jugadores[i].obtenerTOKEN() == token:
+                if posicion.getX() < 10 and posicion.getY() < 10:     # Ciudad ARRIBA-IZQUIERDA
+                    frio = False
+                    calor = False
+
+                    if int(self.climas[0]) <= 10:
+                        frio = True
+                    if int(self.climas[0]) >= 25:
+                        calor = True
+
+                    if frio:
+                        self.jugadores[i].aumentarNivel(self.jugadores[i].obtenerEF())
+                    if calor:
+                        self.jugadores[i].aumentarNivel(self.jugadores[i].obtenerEC())
+
+                elif (posicion.getY() >= 10 and posicion.getY() < 20) and posicion.getX() < 10:     # Ciudad ARRIBA-DERECHA
+                    frio = False
+                    calor = False
+
+                    if int(self.climas[1]) <= 10:
+                        frio = True
+                    if int(self.climas[1]) >= 25:
+                        calor = True
+
+                    if frio:
+                        self.jugadores[i].aumentarNivel(self.jugadores[i].obtenerEF())
+                    if calor:
+                        self.jugadores[i].aumentarNivel(self.jugadores[i].obtenerEC())
+                
+                elif (posicion.getX() >= 10 and posicion.getX() < 20) and posicion.getY() < 10:     # Ciudad ABAJO-IZQUIERDA
+                    frio = False
+                    calor = False
+
+                    if int(self.climas[2]) <= 10:
+                        frio = True
+                    if int(self.climas[2]) >= 25:
+                        calor = True
+
+                    if frio:
+                        self.jugadores[i].aumentarNivel(self.jugadores[i].obtenerEF())
+                    if calor:
+                        self.jugadores[i].aumentarNivel(self.jugadores[i].obtenerEC())
+                
+                else:     # Ciudad ABAJO-DERECHA
+                    frio = False
+                    calor = False
+
+                    if int(self.climas[3]) <= 10:
+                        frio = True
+                    if int(self.climas[3]) >= 25:
+                        calor = True
+
+                    if frio:
+                        self.jugadores[i].aumentarNivel(self.jugadores[i].obtenerEF())
+                    if calor:
+                        self.jugadores[i].aumentarNivel(self.jugadores[i].obtenerEC())
+
+
     def incorporarJugador(self,token):
         for i in range(len(self.jugadores)):
             if self.jugadores[i].obtenerTOKEN() == token:
                 if self.matriz[self.jugadores[i].obtenerPosicion().getX()][self.jugadores[i].obtenerPosicion().getY()] == ' ':
-                    self.matriz[self.jugadores[i].obtenerPosicion().getX()][self.jugadores[i].obtenerPosicion().getY()] = 'J'     # Mirar como identificar en el mapa a los jugadores                           ##### IMPORTANTE #####
+                    self.matriz[self.jugadores[i].obtenerPosicion().getX()][self.jugadores[i].obtenerPosicion().getY()] = 'J'     # Mirar como identificar en el mapa a los jugadores
+
+                    self.comprobarClima(Posicion(self.jugadores[i].obtenerPosicion().getX(),self.jugadores[i].obtenerPosicion().getY()),token)
+
                 else:
                     while 1:
                         nuevaPosicion = Posicion(random.randint(0,19),random.randint(0,19))
 
                         if self.matriz[nuevaPosicion.getX()][nuevaPosicion.getY()] == ' ':
                             self.jugadores[i].asignarPosicion(nuevaPosicion)
-                            self.matriz[self.jugadores[i].obtenerPosicion().getX()][self.jugadores[i].obtenerPosicion().getY()] = 'J'     # Mirar como identificar en el mapa a los jugadores                   ##### IMPORTANTE #####
+                            self.matriz[self.jugadores[i].obtenerPosicion().getX()][self.jugadores[i].obtenerPosicion().getY()] = 'J'     # Mirar como identificar en el mapa a los jugadores
                             break
 
     def limpiarJugador(self,token):
@@ -164,7 +226,7 @@ class Mapa:
                     self.Mina(token,posicionNueva)
                 
                 elif self.matriz[posicionNueva.getX()][posicionNueva.getY()] == 'A':
-                    self.Alimento(token,posicionNueva,i)
+                    self.Alimento(token,posicionNueva)
 
                 elif self.matriz[posicionNueva.getX()][posicionNueva.getY()] == 'J':
                     self.JugadorVSJugador(token,posicionNueva)                      
@@ -189,7 +251,7 @@ class Mapa:
                     self.Mina(token,posicionNueva)
                 
                 elif self.matriz[posicionNueva.getX()][posicionNueva.getY()] == 'A':
-                    self.Alimento(token,posicionNueva,i)
+                    self.Alimento(token,posicionNueva)
 
                 elif self.matriz[posicionNueva.getX()][posicionNueva.getY()] == 'J':
                     self.JugadorVSJugador(token,posicionNueva)                                         
@@ -214,7 +276,7 @@ class Mapa:
                     self.Mina(token,posicionNueva)
                 
                 elif self.matriz[posicionNueva.getX()][posicionNueva.getY()] == 'A':
-                    self.Alimento(token,posicionNueva,i)
+                    self.Alimento(token,posicionNueva)
 
                 elif self.matriz[posicionNueva.getX()][posicionNueva.getY()] == 'J':
                     self.JugadorVSJugador(token,posicionNueva)                                      
@@ -239,7 +301,7 @@ class Mapa:
                     self.Mina(token,posicionNueva)
                 
                 elif self.matriz[posicionNueva.getX()][posicionNueva.getY()] == 'A':
-                    self.Alimento(token,posicionNueva,i)
+                    self.Alimento(token,posicionNueva)
 
                 elif self.matriz[posicionNueva.getX()][posicionNueva.getY()] == 'J':
                     self.JugadorVSJugador(token,posicionNueva)                                      
@@ -271,7 +333,7 @@ class Mapa:
                     self.Mina(token,posicionNueva)
                 
                 elif self.matriz[posicionNueva.getX()][posicionNueva.getY()] == 'A':
-                    self.Alimento(token,posicionNueva,i)
+                    self.Alimento(token,posicionNueva)
 
                 elif self.matriz[posicionNueva.getX()][posicionNueva.getY()] == 'J':
                     self.JugadorVSJugador(token,posicionNueva)                                      
@@ -303,7 +365,7 @@ class Mapa:
                     self.Mina(token,posicionNueva)
                 
                 elif self.matriz[posicionNueva.getX()][posicionNueva.getY()] == 'A':
-                    self.Alimento(token,posicionNueva,i)
+                    self.Alimento(token,posicionNueva)
 
                 elif self.matriz[posicionNueva.getX()][posicionNueva.getY()] == 'J':
                     self.JugadorVSJugador(token,posicionNueva)                                      
@@ -335,7 +397,7 @@ class Mapa:
                     self.Mina(token,posicionNueva)
                 
                 elif self.matriz[posicionNueva.getX()][posicionNueva.getY()] == 'A':
-                    self.Alimento(token,posicionNueva,i)
+                    self.Alimento(token,posicionNueva)
 
                 elif self.matriz[posicionNueva.getX()][posicionNueva.getY()] == 'J':
                     self.JugadorVSJugador(token,posicionNueva)                                      
@@ -367,7 +429,7 @@ class Mapa:
                     self.Mina(token,posicionNueva)
                 
                 elif self.matriz[posicionNueva.getX()][posicionNueva.getY()] == 'A':
-                    self.Alimento(token,posicionNueva,i)
+                    self.Alimento(token,posicionNueva)
 
                 elif self.matriz[posicionNueva.getX()][posicionNueva.getY()] == 'J':
                     self.JugadorVSJugador(token,posicionNueva)                                      
