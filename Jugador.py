@@ -4,6 +4,7 @@ from Posicion import *
 class Jugador:
     def __init__ (self):
         self.posicion = Posicion(random.randint(0,19),random.randint(0,19))
+        self.muerto = False
         self.alias = ""
         self.nivel = ""
         self.EF = ""
@@ -11,13 +12,11 @@ class Jugador:
         self.token = ""
         self.contraseña = ""
 
-    # Decrementa en una cierta cantidad el nivel del jugador
-    def decrementarNivel(self, cantidad):
-        self.nivel -= cantidad
+    def Muerto(self):
+        self.muerto = True
 
-        # El nivel mínimo es 0
-        if self.nivel < 0:
-            self.nivel = 0
+    def obtenerMuerto(self):
+        return self.muerto
 
     def aumentarNivel(self, cantidad):
         self.nivel += cantidad

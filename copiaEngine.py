@@ -294,6 +294,9 @@ if (len(sys.argv) == 5):
                         game.Jugadores(jugadores_preparados)     # Guardo los jugadores en el mapa
                         climas = obtenerClimas(game)
 
+                        for i in range(len(jugadores_preparados)):
+                            game.incorporarJugador(jugadores_preparados[i].obtenerTOKEN())     # Pone a todos los jugadores en su posición inicial 
+
                         if len(climas) != 4:
                             print("Falta o falla algo en Ciudades.txt; Abortando Partida, Volviendo al menu...")
                             print("")
@@ -311,35 +314,14 @@ if (len(sys.argv) == 5):
                                 consumer = KafkaConsumer (topicName, bootstrap_servers = GESTOR_BOOTSTRAP_SERVER)
                                 producer = KafkaProducer(bootstrap_servers = GESTOR_BOOTSTRAP_SERVER)
 
-                                # mandar el mapa generado a todos los jugadores                                                                                                                                 ##### IMPORTANTE #####
-
                                 cadena = game.matrizToString()
                                 producer.send('MAPA', cadena.encode(FORMAT))
 
                                 while acabada != True:
                                     for movimiento in consumer:
-                                        #print(movimiento.value.decode(FORMAT))
                                         movimientoJugador = movimiento.value.decode(FORMAT).split(":")
                                         tokenJugador = movimientoJugador[0]
-                                        moverJugador = movimientoJugador[1]
-
-                                        encontrado = False
-
-                                        with open("Jugando.txt", "r") as f:
-                                            lines = f.readlines()
-
-                                        for line in lines:
-                                            revisarToken = line.replace('\n','')
-
-                                            if revisarToken == tokenJugador:
-                                                encontrado = True  
-                                        
-                                        if encontrado == False:
-                                            ficheroTokens = open("Jugando.txt", "a")
-                                            ficheroTokens.write(tokenJugador + '\n')
-                                            ficheroTokens.close()
-
-                                            game.incorporarJugador(tokenJugador)
+                                        moverJugador = movimientoJugador[1]                                                                                           
 
                                         if moverJugador != "ESCAPE":     # ha pulsado ESCAPE
                                             if moverJugador == 'w' or moverJugador == 'W':     # w-W -> ARRIBA
@@ -379,16 +361,15 @@ if (len(sys.argv) == 5):
 
                                             jugadores_preparados = game.getJugadores()     # Actualizo la lista de jugadores por si ha muerto alguno
 
-                                            muerto = True
+                                            game.matarJugadores()
 
                                             for i in range(len(jugadores_preparados)):
-                                                if jugadores_preparados[i].obtenerTOKEN() == tokenJugador:
-                                                    muerto = False
+                                                if jugadores_preparados[i].obtenerMuerto() == True:
+                                                    print("")
+                                                    print("El jugador " + jugadores_preparados[i].obtenerTOKEN() + " ha muerto.")     
+                                                    print("")
 
-                                            if muerto:
-                                                print("El jugador " + tokenJugador + " ha muerto.")     # Enviarle un mensaje al jugador de que ha muerto y no puede jugar. Cerrarlel juego o algo.             ##### IMPORTANTE #####
-
-                                            game.imprimir()
+                                                    jugadores_preparados.pop(i)     # Enviarle un mensaje al jugador de que ha muerto y no puede jugar. Cerrarle juego o algo.             ##### IMPORTANTE #####   
 
                                         else:
                                             print("El jugador " + tokenJugador + " ha decidido abandonar la partida.")     # Hacer lo necesario para que sea eliminado de la partida                            ##### IMPORTANTE ##### 
@@ -406,10 +387,8 @@ if (len(sys.argv) == 5):
                                             acabada = True
                                             break
                                 
-                                ficheroTokens.close()
-
                             except:
-                                print("Casca el kafka")
+                                print("Casca el kafka.")
                                 pass
             else:
                 try:
@@ -438,11 +417,6 @@ if (len(sys.argv) == 5):
     print("")
     print("Iniciando Engine.")
     print("")
-
-    # Fichero donde se guardan los TOKENS de los jugadores que empiezan a jugar en la partida
-    # Sirve para saber si hay que crear un jugador con ese TOKEN o si ya ha sido creado
-    ficheroTokens = open("Jugando.txt", "w")
-    ficheroTokens.close()
 
     seguir = True
 

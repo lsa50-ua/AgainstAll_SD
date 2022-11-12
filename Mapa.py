@@ -66,6 +66,11 @@ class Mapa:
             
             if yaEsta == False:
                 self.jugadores.append(jugadores[i])
+
+    def matarJugadores(self):
+        for i in range(len(self.jugadores)):
+            if self.jugadores[i].obtenerMuerto() == True:
+                self.jugadores.pop(i)
             
     def matrizToString(self):
         cadena = ""
@@ -78,6 +83,42 @@ class Mapa:
             if i != 19:
                 cadena += ";"
         return cadena
+
+    def Mina(self,token,posicionNueva):
+        self.limpiarJugador(token)
+        self.matriz[posicionNueva.getX()][posicionNueva.getY()] = ' '
+
+        for j in range(len(self.jugadores)):
+            if token == self.jugadores[j].obtenerTOKEN():
+                self.jugadores[j].Muerto()
+    
+    def Alimento(self,token,posicionNueva,posJugador):
+        self.limpiarJugador(token)
+        self.matriz[posicionNueva.getX()][posicionNueva.getY()] = 'J'
+
+        self.jugadores[posJugador].asignarPosicion(posicionNueva)
+
+        for j in range(len(self.jugadores)):
+            if token == self.jugadores[j].obtenerTOKEN():
+                self.jugadores[j].aumentarNivel(1)
+    
+    def JugadorVSJugador(self,token,posicionNueva):
+        for j in range(len(self.jugadores)):
+            if self.jugadores[j].obtenerPosicion().getX() == posicionNueva.getX() and self.jugadores[j].obtenerPosicion().getY() == posicionNueva.getY():     # Jugador que esta en la posicion
+                for x in range(len(self.jugadores)):
+                    if token == self.jugadores[x].obtenerTOKEN():     # Jugador que quiere ir a la posición
+
+                        if self.jugadores[x].obtenerNivel() < self.jugadores[j].obtenerNivel():     # Gana el que ya estaba en la posición
+                            self.limpiarJugador(token)
+                            self.jugadores[x].Muerto()
+
+                        if self.jugadores[x].obtenerNivel() > self.jugadores[j].obtenerNivel():     # Gana el que quiere ir a la posición
+                            self.limpiarJugador(self.jugadores[j].obtenerTOKEN())
+                            self.limpiarJugador(token)
+                            self.jugadores[j].Muerto()
+
+                            self.jugadores[x].asignarPosicion(posicionNueva)
+                            self.matriz[posicionNueva.getX()][posicionNueva.getY()] = 'J'
 
     def incorporarJugador(self,token):
         for i in range(len(self.jugadores)):
@@ -99,13 +140,229 @@ class Mapa:
                 self.matriz[self.jugadores[i].obtenerPosicion().getX()][self.jugadores[i].obtenerPosicion().getY()] = ' '    
 
     def moduloW(self,token):
-        self.limpiarJugador(token)
-
         for i in range(len(self.jugadores)):
             if self.jugadores[i].obtenerTOKEN() == token:
-                if self.jugadores[i].obtenerPosicion().getX()-1 < 0:     
-                        self.jugadores[i].asignarPosicionX(19)
+
+                posicionNueva = Posicion(self.jugadores[i].obtenerPosicion().getX(),self.jugadores[i].obtenerPosicion().getY())
+
+                if posicionNueva.getX()-1 < 0:     
+                        posicionNueva.setX(19)
                 else:
-                    self.jugadores[i].añadirPosicionX(-1)
-                    
-                self.matriz[self.jugadores[i].obtenerPosicion().getX()][self.jugadores[i].obtenerPosicion().getY()] = 'J'
+                    posicionNueva.addX(-1)
+
+                if self.matriz[posicionNueva.getX()][posicionNueva.getY()] == 'M':
+                    self.Mina(token,posicionNueva)
+                
+                elif self.matriz[posicionNueva.getX()][posicionNueva.getY()] == 'A':
+                    self.Alimento(token,posicionNueva,i)
+
+                elif self.matriz[posicionNueva.getX()][posicionNueva.getY()] == 'J':
+                    self.JugadorVSJugador(token,posicionNueva)                      
+
+                else:
+                    self.limpiarJugador(token)
+                    self.jugadores[i].asignarPosicion(posicionNueva)
+                    self.matriz[posicionNueva.getX()][posicionNueva.getY()] = 'J'
+
+    def moduloS(self,token):
+        for i in range(len(self.jugadores)):
+            if self.jugadores[i].obtenerTOKEN() == token:
+
+                posicionNueva = Posicion(self.jugadores[i].obtenerPosicion().getX(),self.jugadores[i].obtenerPosicion().getY())
+
+                if posicionNueva.getX()+1 > 19:     
+                        posicionNueva.setX(0)
+                else:
+                    posicionNueva.addX(1)
+
+                if self.matriz[posicionNueva.getX()][posicionNueva.getY()] == 'M':
+                    self.Mina(token,posicionNueva)
+                
+                elif self.matriz[posicionNueva.getX()][posicionNueva.getY()] == 'A':
+                    self.Alimento(token,posicionNueva,i)
+
+                elif self.matriz[posicionNueva.getX()][posicionNueva.getY()] == 'J':
+                    self.JugadorVSJugador(token,posicionNueva)                                         
+
+                else:
+                    self.limpiarJugador(token)
+                    self.jugadores[i].asignarPosicion(posicionNueva)
+                    self.matriz[posicionNueva.getX()][posicionNueva.getY()] = 'J'
+
+    def moduloA(self,token):
+        for i in range(len(self.jugadores)):
+            if self.jugadores[i].obtenerTOKEN() == token:
+
+                posicionNueva = Posicion(self.jugadores[i].obtenerPosicion().getX(),self.jugadores[i].obtenerPosicion().getY())
+
+                if posicionNueva.getY()-1 < 0:     
+                        posicionNueva.setY(19)
+                else:
+                    posicionNueva.addY(-1)
+
+                if self.matriz[posicionNueva.getX()][posicionNueva.getY()] == 'M':
+                    self.Mina(token,posicionNueva)
+                
+                elif self.matriz[posicionNueva.getX()][posicionNueva.getY()] == 'A':
+                    self.Alimento(token,posicionNueva,i)
+
+                elif self.matriz[posicionNueva.getX()][posicionNueva.getY()] == 'J':
+                    self.JugadorVSJugador(token,posicionNueva)                                      
+
+                else:
+                    self.limpiarJugador(token)
+                    self.jugadores[i].asignarPosicion(posicionNueva)
+                    self.matriz[posicionNueva.getX()][posicionNueva.getY()] = 'J'
+
+    def moduloD(self,token):
+        for i in range(len(self.jugadores)):
+            if self.jugadores[i].obtenerTOKEN() == token:
+
+                posicionNueva = Posicion(self.jugadores[i].obtenerPosicion().getX(),self.jugadores[i].obtenerPosicion().getY())
+
+                if posicionNueva.getY()+1 > 19:     
+                        posicionNueva.setY(0)
+                else:
+                    posicionNueva.addY(1)
+
+                if self.matriz[posicionNueva.getX()][posicionNueva.getY()] == 'M':
+                    self.Mina(token,posicionNueva)
+                
+                elif self.matriz[posicionNueva.getX()][posicionNueva.getY()] == 'A':
+                    self.Alimento(token,posicionNueva,i)
+
+                elif self.matriz[posicionNueva.getX()][posicionNueva.getY()] == 'J':
+                    self.JugadorVSJugador(token,posicionNueva)                                      
+
+                else:
+                    self.limpiarJugador(token)
+                    self.jugadores[i].asignarPosicion(posicionNueva)
+                    self.matriz[posicionNueva.getX()][posicionNueva.getY()] = 'J'
+
+    def moduloE(self,token):
+        for i in range(len(self.jugadores)):
+            if self.jugadores[i].obtenerTOKEN() == token:
+
+                posicionNueva = Posicion(self.jugadores[i].obtenerPosicion().getX(),self.jugadores[i].obtenerPosicion().getY())
+
+                if posicionNueva.getX()-1 < 0: 
+                    posicionNueva.setX(19)
+                    posicionNueva.addY(1)    
+
+                elif posicionNueva.getY()+1 > 19:
+                    posicionNueva.setY(0)    
+                    posicionNueva.addX(-1)
+
+                else:
+                    posicionNueva.addY(1)
+                    posicionNueva.addX(-1)
+
+                if self.matriz[posicionNueva.getX()][posicionNueva.getY()] == 'M':
+                    self.Mina(token,posicionNueva)
+                
+                elif self.matriz[posicionNueva.getX()][posicionNueva.getY()] == 'A':
+                    self.Alimento(token,posicionNueva,i)
+
+                elif self.matriz[posicionNueva.getX()][posicionNueva.getY()] == 'J':
+                    self.JugadorVSJugador(token,posicionNueva)                                      
+
+                else:
+                    self.limpiarJugador(token)
+                    self.jugadores[i].asignarPosicion(posicionNueva)
+                    self.matriz[posicionNueva.getX()][posicionNueva.getY()] = 'J'
+
+    def moduloQ(self,token):
+        for i in range(len(self.jugadores)):
+            if self.jugadores[i].obtenerTOKEN() == token:
+
+                posicionNueva = Posicion(self.jugadores[i].obtenerPosicion().getX(),self.jugadores[i].obtenerPosicion().getY())
+
+                if posicionNueva.getX()-1 < 0: 
+                    posicionNueva.setX(19)
+                    posicionNueva.addY(-1)    
+
+                elif posicionNueva.getY()-1 < 0:
+                    posicionNueva.setY(19)    
+                    posicionNueva.addX(-1)
+
+                else:
+                    posicionNueva.addY(-1)
+                    posicionNueva.addX(-1)
+
+                if self.matriz[posicionNueva.getX()][posicionNueva.getY()] == 'M':
+                    self.Mina(token,posicionNueva)
+                
+                elif self.matriz[posicionNueva.getX()][posicionNueva.getY()] == 'A':
+                    self.Alimento(token,posicionNueva,i)
+
+                elif self.matriz[posicionNueva.getX()][posicionNueva.getY()] == 'J':
+                    self.JugadorVSJugador(token,posicionNueva)                                      
+
+                else:
+                    self.limpiarJugador(token)
+                    self.jugadores[i].asignarPosicion(posicionNueva)
+                    self.matriz[posicionNueva.getX()][posicionNueva.getY()] = 'J'
+
+    def moduloZ(self,token):
+        for i in range(len(self.jugadores)):
+            if self.jugadores[i].obtenerTOKEN() == token:
+
+                posicionNueva = Posicion(self.jugadores[i].obtenerPosicion().getX(),self.jugadores[i].obtenerPosicion().getY())
+
+                if posicionNueva.getX()+1 > 19: 
+                    posicionNueva.setX(0)
+                    posicionNueva.addY(-1)    
+
+                elif posicionNueva.getY()-1 < 0:
+                    posicionNueva.setY(19)    
+                    posicionNueva.addX(1)
+
+                else:
+                    posicionNueva.addY(-1)
+                    posicionNueva.addX(1)
+
+                if self.matriz[posicionNueva.getX()][posicionNueva.getY()] == 'M':
+                    self.Mina(token,posicionNueva)
+                
+                elif self.matriz[posicionNueva.getX()][posicionNueva.getY()] == 'A':
+                    self.Alimento(token,posicionNueva,i)
+
+                elif self.matriz[posicionNueva.getX()][posicionNueva.getY()] == 'J':
+                    self.JugadorVSJugador(token,posicionNueva)                                      
+
+                else:
+                    self.limpiarJugador(token)
+                    self.jugadores[i].asignarPosicion(posicionNueva)
+                    self.matriz[posicionNueva.getX()][posicionNueva.getY()] = 'J'
+
+    def moduloC(self,token):
+        for i in range(len(self.jugadores)):
+            if self.jugadores[i].obtenerTOKEN() == token:
+
+                posicionNueva = Posicion(self.jugadores[i].obtenerPosicion().getX(),self.jugadores[i].obtenerPosicion().getY())
+
+                if posicionNueva.getX()+1 > 19: 
+                    posicionNueva.setX(0)
+                    posicionNueva.addY(1)    
+
+                elif posicionNueva.getY()+1 > 19:
+                    posicionNueva.setY(0)    
+                    posicionNueva.addX(1)
+
+                else:
+                    posicionNueva.addY(1)
+                    posicionNueva.addX(1)
+
+                if self.matriz[posicionNueva.getX()][posicionNueva.getY()] == 'M':
+                    self.Mina(token,posicionNueva)
+                
+                elif self.matriz[posicionNueva.getX()][posicionNueva.getY()] == 'A':
+                    self.Alimento(token,posicionNueva,i)
+
+                elif self.matriz[posicionNueva.getX()][posicionNueva.getY()] == 'J':
+                    self.JugadorVSJugador(token,posicionNueva)                                      
+
+                else:
+                    self.limpiarJugador(token)
+                    self.jugadores[i].asignarPosicion(posicionNueva)
+                    self.matriz[posicionNueva.getX()][posicionNueva.getY()] = 'J'
