@@ -68,9 +68,14 @@ class Mapa:
                 self.jugadores.append(jugadores[i])
 
     def matarJugadores(self):
+        posiciones  = []
+
         for i in range(len(self.jugadores)):
-            if self.jugadores[i].obtenerMuerto() == True:
-                self.jugadores.pop(i)
+            if self.jugadores[i].obtenerMuerto() == "MUERTO":
+                posiciones.append(i)
+
+        for posicion in posiciones:
+            self.jugadores.pop(posicion)
             
     def matrizToString(self):
         cadena = ""

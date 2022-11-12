@@ -68,9 +68,14 @@ class Mapa:
                 self.jugadores.append(jugadores[i])
 
     def matarJugadores(self):
+        posiciones  = []
+
         for i in range(len(self.jugadores)):
-            if self.jugadores[i].obtenerMuerto() == True:
-                self.jugadores.pop(i)
+            if self.jugadores[i].obtenerMuerto() == "MUERTO":
+                posiciones.append(i)
+
+        for posicion in posiciones:
+            self.jugadores.pop(posicion)
             
     def matrizToString(self):
         cadena = ""
@@ -366,3 +371,17 @@ class Mapa:
                     self.limpiarJugador(token)
                     self.jugadores[i].asignarPosicion(posicionNueva)
                     self.matriz[posicionNueva.getX()][posicionNueva.getY()] = 'J'
+
+
+""" game = Mapa()
+jugador1 = Jugador()
+jugador2 = Jugador()
+jugadores = []
+jugadores.append(jugador1)
+jugadores.append(jugador2)
+game.Jugadores(jugadores)
+print(jugador1.obtenerMuerto())
+jugador1.asignarTOKEN("1856")
+print(jugador1.obtenerTOKEN())
+game.Mina(jugador1.obtenerTOKEN(),Posicion(10,10))
+print(jugador1.obtenerMuerto()) """

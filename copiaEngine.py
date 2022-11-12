@@ -13,8 +13,8 @@ FORMAT = 'utf-8'
 HEADER = 64
 SERVER = socket.gethostbyname(socket.gethostname())
 GESTOR_BOOTSTRAP_SERVER = ['localhost:9092']
-TIMEOUT = 10
-socket.setdefaulttimeout(10)
+TIMEOUT = 8
+socket.setdefaulttimeout(8)
 
 def menuPrincipal():
     print("Nueva partida (1)")
@@ -162,6 +162,7 @@ if (len(sys.argv) == 5):
                             jugadorConTOKEN.asignarTOKEN(str(TOKEN))
                             jugadorConTOKEN.asignarContraseña(TIENECONTRA)
                             jugadorConTOKEN.asignarEF(YATIENEEF)
+                            jugadorConTOKEN.Vivo()
 
                             jugadores_preparados.append(jugadorConTOKEN)
 
@@ -223,12 +224,13 @@ if (len(sys.argv) == 5):
                                         jugadorSinTOKEN.asignarTOKEN(str(TOKEN))
                                         jugadorSinTOKEN.asignarContraseña(buscarContraseña[1])
                                         jugadorSinTOKEN.asignarEF(buscarEF[1])
+                                        jugadorSinTOKEN.Vivo()
 
                                         jugadores_preparados.append(jugadorSinTOKEN)     
                                         mensaje = repr(TOKEN)
                                         conn.send(mensaje.encode(FORMAT))
                                         añadidoTOKEN = True
-                                        tieneToken = True
+                                        tieneToken = True 
                                     else:
                                         f.write(line)    
 
@@ -251,9 +253,16 @@ if (len(sys.argv) == 5):
             print("")
 
             if tieneToken:
+                posiciones = []
+                algunMuerto = False
                 for i in range(len(jugadores_preparados)):
                     if str(TOKEN) == jugadores_preparados[i].obtenerTOKEN():
-                        jugadores_preparados.pop(i)
+                        posiciones.append(i) 
+                        algunMuerto = True
+                
+                if algunMuerto:
+                    for posicion in posiciones:
+                        jugadores_preparados.pop(posicion)
 
             conn.close()
 
@@ -262,9 +271,16 @@ if (len(sys.argv) == 5):
             print(f"Se ha forzado la conexión y ha terminado en: {addr} ")
 
             if tieneToken:
+                posiciones = []
+                algunMuerto = False
                 for i in range(len(jugadores_preparados)):
                     if str(TOKEN) == jugadores_preparados[i].obtenerTOKEN():
-                        jugadores_preparados.pop(i)
+                        posiciones.append(i)
+                        algunMuerto = True
+                
+                if algunMuerto:
+                    for posicion in posiciones:
+                        jugadores_preparados.pop(posicion)
 
             conn.close()
 
@@ -357,19 +373,10 @@ if (len(sys.argv) == 5):
                                                 game.moduloC(tokenJugador)
 
                                             else:
-                                                print("El jugador " + tokenJugador + " ha pulsado una tecla incorrecta.")     # Enviar un mensaje al jugador??                                            
-
-                                            jugadores_preparados = game.getJugadores()     # Actualizo la lista de jugadores por si ha muerto alguno
+                                                print("El jugador " + tokenJugador + " ha pulsado una tecla incorrecta.")     # Enviar un mensaje al jugador??
 
                                             game.matarJugadores()
-
-                                            for i in range(len(jugadores_preparados)):
-                                                if jugadores_preparados[i].obtenerMuerto() == True:
-                                                    print("")
-                                                    print("El jugador " + jugadores_preparados[i].obtenerTOKEN() + " ha muerto.")     
-                                                    print("")
-
-                                                    jugadores_preparados.pop(i)     # Enviarle un mensaje al jugador de que ha muerto y no puede jugar. Cerrarle juego o algo.             ##### IMPORTANTE #####   
+                                            pInGame = game.getJugadores()     # Enviarle un mensaje al jugador de que ha muerto y no puede jugar. Cerrarle juego o algo.             ##### IMPORTANTE #####
 
                                         else:
                                             print("El jugador " + tokenJugador + " ha decidido abandonar la partida.")     # Hacer lo necesario para que sea eliminado de la partida                            ##### IMPORTANTE ##### 
@@ -379,10 +386,10 @@ if (len(sys.argv) == 5):
                                         cadena = game.matrizToString()
                                         producer.send('MAPA', cadena.encode(FORMAT))
 
-                                        # Esto hay que cambiarlo, ya que "jugadores_preparados" ahora es un array de jugadores y no de TOKENS                                                                   ##### IMPORTANTE #####
+                                        # Esto hay que cambiarlo, ya que "pInGame" ahora es un array de jugadores y no de TOKENS                                                                   ##### IMPORTANTE #####
                                         if len(pInGame) == 1:
-                                            print("Ha ganado el jugador con el Token: ",jugadores_preparados[0])     
-                                            ganador = jugadores_preparados[0] + ":GANADOR"     
+                                            print("Ha ganado el jugador con el Token: ",pInGame[0])     
+                                            ganador = pInGame[0] + ":GANADOR"     
                                             producer.send('MAPA', ganador.encode(FORMAT))
                                             acabada = True
                                             break

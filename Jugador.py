@@ -4,7 +4,7 @@ from Posicion import *
 class Jugador:
     def __init__ (self):
         self.posicion = Posicion(random.randint(0,19),random.randint(0,19))
-        self.muerto = False
+        self.muerto = ""
         self.alias = ""
         self.nivel = ""
         self.EF = ""
@@ -13,7 +13,10 @@ class Jugador:
         self.contraseña = ""
 
     def Muerto(self):
-        self.muerto = True
+        self.muerto = "MUERTO"
+
+    def Vivo(self):
+        self.muerto = "VIVO"
 
     def obtenerMuerto(self):
         return self.muerto
