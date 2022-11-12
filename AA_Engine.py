@@ -375,9 +375,13 @@ if (len(sys.argv) == 5):
                                             else:
                                                 print("El jugador " + tokenJugador + " ha pulsado una tecla incorrecta.")     # Enviar un mensaje al jugador??
 
-                                            game.matarJugadores()
+                                            listaMsgMuertos = game.matarJugadores()
+                                            
+                                            for i in range(len(listaMsgMuertos)):
+                                                producer.send('MAPA', listaMsgMuertos[i].encode(FORMAT))
+                                            
                                             pInGame = game.getJugadores()     # Enviarle un mensaje al jugador de que ha muerto y no puede jugar. Cerrarle juego o algo.             ##### IMPORTANTE #####
-
+                                            
                                         else:
                                             print("El jugador " + tokenJugador + " ha decidido abandonar la partida.")     # Hacer lo necesario para que sea eliminado de la partida                            ##### IMPORTANTE ##### 
 
@@ -388,8 +392,8 @@ if (len(sys.argv) == 5):
 
                                         # Esto hay que cambiarlo, ya que "pInGame" ahora es un array de jugadores y no de TOKENS                                                                   ##### IMPORTANTE #####
                                         if len(pInGame) == 1:
-                                            print("Ha ganado el jugador con el Token: ",pInGame[0])     
-                                            ganador = pInGame[0] + ":GANADOR"     
+                                            print("Ha ganado el jugador con el Token: ",pInGame[0].obtenerTOKEN())     
+                                            ganador = pInGame[0].obtenerTOKEN() + ":GANADOR"     
                                             producer.send('MAPA', ganador.encode(FORMAT))
                                             acabada = True
                                             break
