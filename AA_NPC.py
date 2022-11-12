@@ -16,47 +16,47 @@ def enviarMovsNPC(identificador):
         else:
             number = random.randint(1, 8)
             if(number == 1):
-                msg = identificador + ":a"
+                msg = identificador + "-a"
                 producer.send('Players', msg.encode(FORMAT))
             
             if(number == 2):
-                msg = identificador + ":w"
+                msg = identificador + "-w"
                 producer.send('Players', msg.encode(FORMAT))
 
             
             if(number == 3):
-                msg = identificador + ":s"
+                msg = identificador + "-s"
                 producer.send('Players', msg.encode(FORMAT))
 
             
             if(number == 4):
-                msg = identificador + ":d"
+                msg = identificador + "-d"
                 producer.send('Players', msg.encode(FORMAT))
 
             
             if(number == 5):
-                msg = identificador + ":q"
+                msg = identificador + "-q"
                 producer.send('Players', msg.encode(FORMAT))
 
             
             if(number == 6):
-                msg = identificador + ":e"
+                msg = identificador + "-e"
                 producer.send('Players', msg.encode(FORMAT))
 
             
             if(number == 7):
-                msg = identificador + ":z"
+                msg = identificador + "-z"
                 producer.send('Players', msg.encode(FORMAT))
 
             
             if(number == 8):
-                msg = identificador + ":c"
+                msg = identificador + "-c"
                 producer.send('Players', msg.encode(FORMAT))
             
             
             #metadata = ack.get()
 
-            time.sleep(1)
+            time.sleep(1) #tiempo de espera entre cada movimiento que envia
 
 if (len(sys.argv) == 2):
     GESTOR_BOOTSTRAP_SERVER = [sys.argv[1]]
@@ -68,7 +68,7 @@ if (len(sys.argv) == 2):
         sys.exit()
     
     identificador = str(random.randint(1,10)*random.randint(1,10)*random.randint(1,10))
-    msg = "NPC" + ":" + identificador
+    msg = identificador + "-" + "NewNPC"
     try:
         producer.send('Players', msg.encode('utf-8'))
     except:
@@ -78,12 +78,12 @@ if (len(sys.argv) == 2):
         if validacion.decode(FORMAT) == (identificador + ":OK"):
             print("NPC con el identificador: " + identificador + " entrando en partida")
             break
-        elif validacion == "FinDePartida":
+        elif validacion.decode(FORMAT) == "FinDePartida":
             print("La partida ha finalizado antes de poder meterse el NPC")
             sys.exit()
-        else:
+        elif validacion.decode(FORMAT) == (identificador + ":repetido"):
             identificador = str(random.randint(1,10)*random.randint(1,10)*random.randint(1,10))
-            msg = "NPC" + ":" + identificador
+            msg = identificador + "-" + "NewNPC"
             producer.send('Players', msg.encode('utf-8'))
     
     global partidaTerminada
@@ -91,7 +91,7 @@ if (len(sys.argv) == 2):
     t1 = threading.Thread(target=enviarMovsNPC, args=(identificador))
     t1.start()
     for info in consumer:
-        if info == (identificador + ":FIN"):
+        if info == (identificador + "-FIN"):
             print("El NPC ha muerto")
             partidaTerminada = True
             break

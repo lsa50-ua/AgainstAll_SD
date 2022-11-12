@@ -295,6 +295,7 @@ if (len(sys.argv) == 5):
         global jugadores_preparados
         jugadores_preparados = []
         climas = []
+        listaNPC = []
         print("Tiempo restante para iniciar partida: ", TIMEOUT," s")
         print("")
 
@@ -384,7 +385,52 @@ if (len(sys.argv) == 5):
                                             
                                         else:
                                             print("El jugador " + tokenJugador + " ha decidido abandonar la partida.")     # Hacer lo necesario para que sea eliminado de la partida                            ##### IMPORTANTE ##### 
+                                        """
+                                        movimientoNPC = movimiento.value.decode(FORMAT).split("-")
+                                        tokenNPC = movimientoNPC[0]
+                                        jugadaNPC = movimientoNPC[1]
+                                        if jugadaNPC == 'w':     # w-W -> ARRIBA
+                                            print("El NPC: " + tokenNPC + " ha pulsado la tecla " + jugadaNPC + ".")
+                                            game.moduloW(tokenNPC)
 
+                                        elif jugadaNPC == 's':     # s-S -> ABAJO
+                                            print("El NPC: " + tokenNPC + " ha pulsado la tecla " + jugadaNPC + ".")
+                                            game.moduloS(tokenNPC)
+                                
+                                        elif jugadaNPC == 'a':     # a-A -> IZQUIERDA
+                                            print("El NPC: " + tokenNPC + " ha pulsado la tecla " + jugadaNPC + ".")
+                                            game.moduloA(tokenNPC)
+
+                                        elif jugadaNPC == 'd':      # d-D -> DERECHA
+                                            print("El NPC: " + tokenNPC + " ha pulsado la tecla " + jugadaNPC + ".")
+                                            game.moduloD(tokenNPC)
+
+                                        elif jugadaNPC == 'e':      # e-E -> ARRIBA-DERECHA
+                                            print("El NPC: " + tokenNPC + " ha pulsado la tecla " + jugadaNPC + ".")
+                                            game.moduloE(tokenNPC)
+
+                                        elif jugadaNPC == 'q':      # q-Q -> ARRIBA-IZQUIERDA
+                                            print("El NPC: " + tokenNPC + " ha pulsado la tecla " + jugadaNPC + ".")
+                                            game.moduloQ(tokenNPC)
+                                        
+                                        elif jugadaNPC == 'z':      # z-Z -> ABAJO-IZQUIERDA
+                                            print("El NPC: " + tokenNPC + " ha pulsado la tecla " + jugadaNPC + ".")
+                                            game.moduloZ(tokenNPC)
+
+                                        elif jugadaNPC == 'c':      # c-C -> ABAJO-DERECHA
+                                            print("El NPC: " + tokenNPC + " ha pulsado la tecla " + jugadaNPC + ".")
+                                            game.moduloC(tokenNPC)
+                                        elif jugadaNPC == "newNPC":
+                                            repe = False
+                                            for i in range(len(listaNPC)):
+                                                if listaNPC[i].obtenerTOKEN() == tokenNPC:
+                                                    msgRepe = tokenNPC + ":repetido"
+                                                    producer.send('MAPA', msgRepe.encode(FORMAT))
+                                                    repe = True
+                                                    break
+                                            if repe == False:
+                                                newNPC = NPC()
+                                        """
                                         #hacer respectivo movimiento en el mapa calcular si se ha pegado con alguien, subido de nivel, explotado mina                                                           ##### IMPORTANTE #####
                                         #producer.send('MAPA', mapa.encode(FORMAT))
                                         cadena = game.matrizToString()
@@ -396,6 +442,7 @@ if (len(sys.argv) == 5):
                                             ganador = pInGame[0].obtenerTOKEN() + ":GANADOR"     
                                             producer.send('MAPA', ganador.encode(FORMAT))
                                             acabada = True
+                                            producer.send('MAPA', "FinDePartida".encode(FORMAT))
                                             break
                                 
                             except:

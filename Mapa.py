@@ -1,6 +1,7 @@
 import random
 from Posicion import *
 from Jugador import *
+from NPC import *
 
 class Mapa:
     def __init__(self):
@@ -8,6 +9,7 @@ class Mapa:
         self.climas = []
         self.ciudades = []
         self.jugadores = []
+        self.NPCs = []
 
         # Crea la estructura de la matriz
         for i in range(20):
