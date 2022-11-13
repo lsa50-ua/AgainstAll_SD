@@ -70,16 +70,22 @@ def enviarMovs():
         if stopPedirMovs == True:
             break
         else:
-            if msvcrt.kbhit():
-                entradaTec = msvcrt.getch()
+            try:
+                if msvcrt.kbhit():
+                    entradaTec = msvcrt.getch()
 
-                if ord(entradaTec) != 27:
-                    msg = TOKEN + ":" + entradaTec.decode(FORMAT)
-                    producer.send(topicName, msg.encode(FORMAT))
-                else:
-                    msg = TOKEN + ":" + "ESCAPE"
-                    producer.send(topicName, msg.encode(FORMAT))
-
+                    if ord(entradaTec) != 27:
+                        if ord(entradaTec) == 119 or ord(entradaTec) == 87 or ord(entradaTec) == 97 or ord(entradaTec) == 65 or ord(entradaTec) == 115 or ord(entradaTec) == 83 or ord(entradaTec) == 100 or ord(entradaTec) == 68: # awsd
+                            msg = TOKEN + ":" + entradaTec.decode(FORMAT)
+                            producer.send(topicName, msg.encode(FORMAT))
+                        elif ord(entradaTec) == 113 or ord(entradaTec) == 81 or ord(entradaTec) == 101 or ord(entradaTec) == 69 or ord(entradaTec) == 122 or ord(entradaTec) == 90 or ord(entradaTec) == 99 or ord(entradaTec) == 67: # qezc
+                            msg = TOKEN + ":" + entradaTec.decode(FORMAT)
+                            producer.send(topicName, msg.encode(FORMAT))                        
+                    else:
+                        msg = TOKEN + ":" + "ESCAPE"
+                        producer.send(topicName, msg.encode(FORMAT))
+            except:
+                pass
 
 if (len(sys.argv) == 6):
     ENGINE_IP = sys.argv[1]
@@ -223,82 +229,87 @@ if (len(sys.argv) == 6):
                     clientRegistryEditar.close()
 
             elif seleccion == 3:
-                clientEngine = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                clientEngine.connect(ENGINE_ADDR)
+                try:
+                    clientEngine = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                    clientEngine.connect(ENGINE_ADDR)
 
-                alias = input("Por favor introduzca tu alias: ")
-                aliasLimpio = alias.replace(' ','')
-                contraseña = input("Por favor introduzca tu contraseña: ")
-                contraseñaLimpia = contraseña.replace(' ','')
-                print("")
-
-                msg = aliasLimpio + ":" + contraseñaLimpia
-
-                send(msg,clientEngine)
-
-                existe = clientEngine.recv(2048).decode(FORMAT)
-
-                if existe != "El usuario introducido no existe en la BBDD.":
-                    TOKEN = existe
-                    print("Se te ha asignado el TOKEN -> " + repr(TOKEN))
+                    alias = input("Por favor introduzca tu alias: ")
+                    aliasLimpio = alias.replace(' ','')
+                    contraseña = input("Por favor introduzca tu contraseña: ")
+                    contraseñaLimpia = contraseña.replace(' ','')
                     print("")
-                    print("Movimientos validos para la partida: ")
-                    print("  a-Izquierda  d-Derecha  s-Abajo  w-arriba")
-                    print("También puedes ir en diagonal con las teclas q e z c")
+
+                    msg = aliasLimpio + ":" + contraseñaLimpia
+
+                    send(msg,clientEngine)
+
+                    existe = clientEngine.recv(2048).decode(FORMAT)
+
+                    if existe != "El usuario introducido no existe en la BBDD.":
+                        TOKEN = existe
+                        print("Se te ha asignado el TOKEN -> " + repr(TOKEN))
+                        print("")
+                        print("Movimientos validos para la partida: ")
+                        print("  a-Izquierda  d-Derecha  s-Abajo  w-arriba")
+                        print("También puedes ir en diagonal con las teclas q e z c")
+                        print("")
+                        send("ESPERA", clientEngine)
+                        respuesta = clientEngine.recv(2048).decode(FORMAT)    # Se queda esperando a recibir el mensaje de que va a empezar la partida
+                        if respuesta == "Tiempo de espera finalizado. Iniciando partida.":
+                            topicName = 'MAPA'
+                            global stopPedirMovs
+                            stopPedirMovs = False
+                            t1 = threading.Thread(target=enviarMovs, args=())
+                            t1.start()
+                            try:
+                                consumer = KafkaConsumer (topicName, bootstrap_servers = GESTOR_BOOTSTRAP_SERVER)
+
+                                for mapa in consumer:
+                                    
+                                    system("cls")
+                                    print("Mapa: " + '\n')
+                                    if mapa.value.decode(FORMAT) == (TOKEN + ":FIN"):
+                                        print("Has perdido.")
+                                        print("")
+                                        stopPedirMovs = True
+                                        break
+                                    elif mapa.value.decode(FORMAT) == (TOKEN + ":GANADOR"):
+                                        print("Has ganado.")
+                                        print("")
+                                        stopPedirMovs = True
+                                        break
+                                    elif mapa.value.decode(FORMAT) == "FinDePartida":
+                                        print("Se ha acabado la partida")
+                                        break
+                                    #elif mapa.value.decode(FORMAT) == (TOKEN + ":INCORRECTA"):
+                                        #print("Has introducido una tecla incorrecta. Por favor intentelo otra vez.")
+                                        #print("")
+                                        #matrix = stringToMatrix(mapa.value.decode(FORMAT))
+                                        #imprimir(matrix)
+                                    elif len(mapa.value.decode(FORMAT)) > 400:
+                                        matrix = stringToMatrix(mapa.value.decode(FORMAT))
+                                        imprimir(matrix)
+                                    
+                            except :
+                                print("Casca el envio o recibimientos de datos de Kafka.")
+                                stopPedirMovs = True
+                                pass
+
+                            
+
+                            time.sleep(1)     # Para que finalize el hilo de pedir teclas
+
+                            # Limpio el buffer de teclas
+                            while msvcrt.kbhit():
+                                msvcrt.getch()
+                            
+                    else:
+                        print(existe)
+                        clientEngine.close()
+
+                except:
+                    print("Partida no iniciada.")
                     print("")
-                    send("ESPERA", clientEngine)
-                    respuesta = clientEngine.recv(2048).decode(FORMAT)    # Se queda esperando a recibir el mensaje de que va a empezar la partida
-                    if respuesta == "Tiempo de espera finalizado. Iniciando partida.":
-                        topicName = 'MAPA'
-                        global stopPedirMovs
-                        stopPedirMovs = False
-                        t1 = threading.Thread(target=enviarMovs, args=())
-                        t1.start()
-                        try:
-                            consumer = KafkaConsumer (topicName, bootstrap_servers = GESTOR_BOOTSTRAP_SERVER)
-
-                            for mapa in consumer:
-                                
-                                system("cls")
-                                print("Mapa: " + '\n')
-                                if mapa.value.decode(FORMAT) == (TOKEN + ":FIN"):
-                                    print("Has perdido.")
-                                    print("")
-                                    stopPedirMovs = True
-                                    break
-                                elif mapa.value.decode(FORMAT) == (TOKEN + ":GANADOR"):
-                                    print("Has ganado.")
-                                    print("")
-                                    stopPedirMovs = True
-                                    break
-                                elif mapa.value.decode(FORMAT) == "FinDePartida":
-                                    print("Se ha acabado la partida")
-                                    break
-                                #elif mapa.value.decode(FORMAT) == (TOKEN + ":INCORRECTA"):
-                                    #print("Has introducido una tecla incorrecta. Por favor intentelo otra vez.")
-                                    #print("")
-                                    #matrix = stringToMatrix(mapa.value.decode(FORMAT))
-                                    #imprimir(matrix)
-                                elif len(mapa.value.decode(FORMAT)) > 400:
-                                    matrix = stringToMatrix(mapa.value.decode(FORMAT))
-                                    imprimir(matrix)
-                                
-                        except :
-                            print("Casca el envio o recibimientos de datos de Kafka.")
-                            stopPedirMovs = True
-                            pass
-
-                        
-
-                        time.sleep(1)     # Para que finalize el hilo de pedir teclas
-
-                        # Limpio el buffer de teclas
-                        while msvcrt.kbhit():
-                            msvcrt.getch()
-                        
-                else:
-                    print(existe)
-                    clientEngine.close()
 
             elif seleccion == 4:
                 bucle = False

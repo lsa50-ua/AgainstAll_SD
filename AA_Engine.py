@@ -337,8 +337,8 @@ if (len(sys.argv) == 5):
                             try:
                                 consumer = KafkaConsumer (topicName, bootstrap_servers = GESTOR_BOOTSTRAP_SERVER)
                                 producer = KafkaProducer(bootstrap_servers = GESTOR_BOOTSTRAP_SERVER)
-                                info = infoPlayers(pInGame)
-                                producer.send('MAPA', info.encode(FORMAT))
+                                #info = infoPlayers(pInGame)
+                                #producer.send('MAPA', info.encode(FORMAT))
                                 cadena = game.matrizToString()
                                 producer.send('MAPA', cadena.encode(FORMAT))
 
@@ -385,6 +385,10 @@ if (len(sys.argv) == 5):
 
                                                 else:
                                                     print("El jugador '" + tokenJugador + "' ha pulsado una tecla incorrecta.")
+
+                                                
+                                                for i in range(len(pInGame)):
+                                                    print(pInGame[i].obtenerNivel())
 
                                                     #for i in range(len(pInGame)):
                                                         #if pInGame[i].obtenerTOKEN() == tokenJugador:
@@ -485,8 +489,8 @@ if (len(sys.argv) == 5):
                                         
                                         pInGame = game.getJugadores()
                                         
-                                        info = infoPlayers(pInGame)
-                                        producer.send('MAPA', info.encode(FORMAT))                                                    
+                                        #info = infoPlayers(pInGame)
+                                        #producer.send('MAPA', info.encode(FORMAT))                                                    
                                         cadena = game.matrizToString()
                                         producer.send('MAPA', cadena.encode(FORMAT))
 

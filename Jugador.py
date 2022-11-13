@@ -34,6 +34,9 @@ class Jugador:
     def aumentarNivel(self, aumento):
         self.nivel = self.nivel + aumento
 
+        if self.nivel < 0:
+            self.nivel = 0
+
     def asignarAlias(self,alias):
         self.alias = alias
     
