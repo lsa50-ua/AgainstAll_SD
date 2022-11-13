@@ -469,7 +469,7 @@ if (len(sys.argv) == 5):
                                         listaNPCMuertos = game.matarNPCs()
                                         for i in range(len(listaNPCMuertos)):
                                             producer.send('MAPA', listaNPCMuertos[i].encode(FORMAT))
-                                            particion = listaNPCMuertos[i].split(":")
+                                            particion = listaNPCMuertos[i].split("-")
 
                                             print("")
                                             print("El NPC '" + particion[0] + "' ha sido eliminado de la partida.")

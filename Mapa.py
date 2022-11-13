@@ -96,7 +96,7 @@ class Mapa:
                 posiciones.append(i)
 
         for posicion in posiciones:
-            listaMsgMuertos.append(self.NPCs[posicion].obtenerTOKEN() + ":FIN")
+            listaMsgMuertos.append(self.NPCs[posicion].obtenerTOKEN() + "-FIN")
             self.NPCs.pop(posicion)
 
         return listaMsgMuertos
