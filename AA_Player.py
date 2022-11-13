@@ -271,12 +271,15 @@ if (len(sys.argv) == 6):
                                     print("")
                                     stopPedirMovs = True
                                     break
+                                elif mapa.value.decode(FORMAT) == "FinDePartida":
+                                    print("Se ha acabado la partida")
+                                    break
                                 #elif mapa.value.decode(FORMAT) == (TOKEN + ":INCORRECTA"):
                                     #print("Has introducido una tecla incorrecta. Por favor intentelo otra vez.")
                                     #print("")
                                     #matrix = stringToMatrix(mapa.value.decode(FORMAT))
                                     #imprimir(matrix)
-                                else:
+                                elif len(mapa.value.decode(FORMAT)) > 400:
                                     matrix = stringToMatrix(mapa.value.decode(FORMAT))
                                     imprimir(matrix)
                                 

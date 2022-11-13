@@ -8,7 +8,8 @@ import threading
 
 FORMAT = 'utf-8'
 
-def enviarMovsNPC(identificador):
+def enviarMovsNPC():
+    time.sleep(1)
     global partidaTerminada
     while 1:
         if(partidaTerminada == True):
@@ -17,46 +18,47 @@ def enviarMovsNPC(identificador):
             number = random.randint(1, 8)
             if(number == 1):
                 msg = identificador + "-a"
-                producer.send('Players', msg.encode(FORMAT))
+                producer.send('PLAYERS', msg.encode(FORMAT))
+                print(msg)
             
             if(number == 2):
                 msg = identificador + "-w"
-                producer.send('Players', msg.encode(FORMAT))
-
+                producer.send('PLAYERS', msg.encode(FORMAT))
+                print(msg)
             
             if(number == 3):
                 msg = identificador + "-s"
-                producer.send('Players', msg.encode(FORMAT))
-
+                producer.send('PLAYERS', msg.encode(FORMAT))
+                print(msg)
             
             if(number == 4):
                 msg = identificador + "-d"
-                producer.send('Players', msg.encode(FORMAT))
-
+                producer.send('PLAYERS', msg.encode(FORMAT))
+                print(msg)
             
             if(number == 5):
                 msg = identificador + "-q"
-                producer.send('Players', msg.encode(FORMAT))
-
+                producer.send('PLAYERS', msg.encode(FORMAT))
+                print(msg)
             
             if(number == 6):
                 msg = identificador + "-e"
-                producer.send('Players', msg.encode(FORMAT))
-
+                producer.send('PLAYERS', msg.encode(FORMAT))
+                print(msg)
             
             if(number == 7):
                 msg = identificador + "-z"
-                producer.send('Players', msg.encode(FORMAT))
-
+                producer.send('PLAYERS', msg.encode(FORMAT))
+                print(msg)
             
             if(number == 8):
                 msg = identificador + "-c"
-                producer.send('Players', msg.encode(FORMAT))
-            
+                producer.send('PLAYERS', msg.encode(FORMAT))
+                print(msg)
             
             #metadata = ack.get()
 
-            time.sleep(1) #tiempo de espera entre cada movimiento que envia
+            time.sleep(3) #tiempo de espera entre cada movimiento que envia
 
 if (len(sys.argv) == 2):
     GESTOR_BOOTSTRAP_SERVER = [sys.argv[1]]
@@ -68,34 +70,39 @@ if (len(sys.argv) == 2):
         sys.exit()
     
     identificador = str(random.randint(1,10)*random.randint(1,10)*random.randint(1,10))
-    msg = identificador + "-" + "NewNPC"
+    print(identificador)
+    msg = identificador + "-NewNPC"
+    print(msg)
     try:
-        producer.send('Players', msg.encode('utf-8'))
+        producer.send('PLAYERS', msg.encode('utf-8'))
     except:
         print("No hay niguna partida en curso. Saliendo...")
         sys.exit()
     for validacion in consumer:
-        if validacion.decode(FORMAT) == (identificador + ":OK"):
+        print(1)
+        if validacion.value.decode(FORMAT) == (identificador + ":OK"):
+            print(2)
             print("NPC con el identificador: " + identificador + " entrando en partida")
             break
-        elif validacion.decode(FORMAT) == "FinDePartida":
+        elif validacion.value.decode(FORMAT) == "FinDePartida":
             print("La partida ha finalizado antes de poder meterse el NPC")
             sys.exit()
-        elif validacion.decode(FORMAT) == (identificador + ":repetido"):
+        elif validacion.value.decode(FORMAT) == (identificador + ":repetido"):
+            print(3)
             identificador = str(random.randint(1,10)*random.randint(1,10)*random.randint(1,10))
-            msg = identificador + "-" + "NewNPC"
-            producer.send('Players', msg.encode('utf-8'))
+            msg = identificador + "-NewNPC"
+            producer.send('PLAYERS', msg.encode('utf-8'))
     
     global partidaTerminada
     partidaTerminada = False
-    t1 = threading.Thread(target=enviarMovsNPC, args=(identificador))
+    t1 = threading.Thread(target=enviarMovsNPC, args=())
     t1.start()
     for info in consumer:
-        if info == (identificador + "-FIN"):
+        if info.value.decode(FORMAT) == (identificador + "-FIN"):
             print("El NPC ha muerto")
             partidaTerminada = True
             break
-        if info == "FinDePartida":
+        if info.value.decode(FORMAT) == "FinDePartida":
             print("La partida ha finalizado")
             partidaTerminada = True
             break

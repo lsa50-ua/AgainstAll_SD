@@ -50,6 +50,9 @@ class Mapa:
     def getJugadores(self):
         return self.jugadores
     
+    def getNPCs(self):
+        return self.NPCs
+    
     def Climas(self,climas):
         for i in range(len(climas)):
             self.climas.append(climas[i])     # El 0 será la zona arriba izquierda, el 1 será arriba derecha...
@@ -68,6 +71,9 @@ class Mapa:
             
             if yaEsta == False:
                 self.jugadores.append(jugadores[i])
+
+    def añadirNPC(self, NPC):
+        self.NPCs.append(NPC)
 
     def matarJugadores(self): 
         posiciones  = []
@@ -288,10 +294,29 @@ class Mapa:
 
                             break
 
+    def incorporarNPC(self,token):
+        for i in range(len(self.NPCs)):
+            if self.NPCs[i].obtenerTOKEN() == token:
+                if self.matriz[self.NPCs[i].obtenerPosicion().getX()][self.NPCs[i].obtenerPosicion().getY()] == ' ':
+                    self.matriz[self.NPCs[i].obtenerPosicion().getX()][self.NPCs[i].obtenerPosicion().getY()] = self.NPCs[i].obtenerNivel_Char()    # Mirar como identificar en el mapa a los jugadores
+                else:
+                    while 1:
+                        nuevaPosicion = Posicion(random.randint(0,19),random.randint(0,19))
+
+                        if self.matriz[nuevaPosicion.getX()][nuevaPosicion.getY()] == ' ':
+                            self.NPCs[i].asignarPosicion(nuevaPosicion)
+                            self.matriz[self.NPCs[i].obtenerPosicion().getX()][self.NPCs[i].obtenerPosicion().getY()] = self.NPCs[i].obtenerNivel_Char()    # Mirar como identificar en el mapa a los jugadores
+                            break        
+
     def limpiarJugador(self,token):
         for i in range(len(self.jugadores)):
             if self.jugadores[i].obtenerTOKEN() == token:
-                self.matriz[self.jugadores[i].obtenerPosicion().getX()][self.jugadores[i].obtenerPosicion().getY()] = ' '    
+                self.matriz[self.jugadores[i].obtenerPosicion().getX()][self.jugadores[i].obtenerPosicion().getY()] = ' '  
+
+    def limpiarNPC(self,token):
+        for i in range(len(self.NPCs)):
+            if self.NPCs[i].obtenerTOKEN() == token:
+                self.matriz[self.NPCs[i].obtenerPosicion().getX()][self.NPCs[i].obtenerPosicion().getY()] = ' '     
 
     def moduloW(self,token):
         for i in range(len(self.jugadores)):
@@ -319,6 +344,24 @@ class Mapa:
                     self.matriz[posicionNueva.getX()][posicionNueva.getY()] = 'J'
                     self.comprobarClima(posicionNueva,token)
 
+    def moduloW_N(self,token):
+        for i in range(len(self.NPCs)):
+            if self.NPCs[i].obtenerTOKEN() == token:
+
+                posicionNueva = Posicion(self.NPCs[i].obtenerPosicion().getX(),self.NPCs[i].obtenerPosicion().getY())
+
+                if posicionNueva.getX()-1 < 0:     
+                        posicionNueva.setX(19)
+                else:
+                    posicionNueva.addX(-1)
+
+                if self.matriz[posicionNueva.getX()][posicionNueva.getY()] == 'J':
+                    self.JugadorVSJugador(token,posicionNueva)                      
+                else:
+                    self.limpiarNPC(token)
+                    self.NPCs[i].asignarPosicion(posicionNueva)
+                    self.matriz[posicionNueva.getX()][posicionNueva.getY()] = self.NPCs[i].obtenerNivel_Char()
+
     def moduloS(self,token):
         for i in range(len(self.jugadores)):
             if self.jugadores[i].obtenerTOKEN() == token:
@@ -344,6 +387,26 @@ class Mapa:
                     self.jugadores[i].asignarPosicion(posicionNueva)
                     self.matriz[posicionNueva.getX()][posicionNueva.getY()] = 'J'
                     self.comprobarClima(posicionNueva,token)
+
+    def moduloS_N(self,token):
+        for i in range(len(self.NPCs)):
+            if self.NPCs[i].obtenerTOKEN() == token:
+
+                posicionNueva = Posicion(self.NPCs[i].obtenerPosicion().getX(),self.NPCs[i].obtenerPosicion().getY())
+
+                if posicionNueva.getX()+1 > 19:     
+                        posicionNueva.setX(0)
+                else:
+                    posicionNueva.addX(1)
+
+                if self.matriz[posicionNueva.getX()][posicionNueva.getY()] == 'J':
+                    self.JugadorVSJugador(token,posicionNueva)                                         
+
+                else:
+                    self.limpiarNPC(token)
+                    self.NPCs[i].asignarPosicion(posicionNueva)
+                    self.matriz[posicionNueva.getX()][posicionNueva.getY()] = self.NPCs[i].obtenerNivel_Char()
+
 
     def moduloA(self,token):
         for i in range(len(self.jugadores)):
@@ -371,6 +434,26 @@ class Mapa:
                     self.matriz[posicionNueva.getX()][posicionNueva.getY()] = 'J'
                     self.comprobarClima(posicionNueva,token)
 
+    def moduloA_N(self,token):
+        for i in range(len(self.NPCs)):
+            if self.NPCs[i].obtenerTOKEN() == token:
+
+                posicionNueva = Posicion(self.NPCs[i].obtenerPosicion().getX(),self.NPCs[i].obtenerPosicion().getY())
+
+                if posicionNueva.getY()-1 < 0:     
+                        posicionNueva.setY(19)
+                else:
+                    posicionNueva.addY(-1)
+
+                if self.matriz[posicionNueva.getX()][posicionNueva.getY()] == 'J':
+                    self.JugadorVSJugador(token,posicionNueva)                                         
+
+                else:
+                    self.limpiarNPC(token)
+                    self.NPCs[i].asignarPosicion(posicionNueva)
+                    self.matriz[posicionNueva.getX()][posicionNueva.getY()] = self.NPCs[i].obtenerNivel_Char()
+
+
     def moduloD(self,token):
         for i in range(len(self.jugadores)):
             if self.jugadores[i].obtenerTOKEN() == token:
@@ -396,6 +479,25 @@ class Mapa:
                     self.jugadores[i].asignarPosicion(posicionNueva)
                     self.matriz[posicionNueva.getX()][posicionNueva.getY()] = 'J'
                     self.comprobarClima(posicionNueva,token)
+
+    def moduloD_N(self,token):
+        for i in range(len(self.NPCs)):
+            if self.NPCs[i].obtenerTOKEN() == token:
+
+                posicionNueva = Posicion(self.NPCs[i].obtenerPosicion().getX(),self.NPCs[i].obtenerPosicion().getY())
+
+                if posicionNueva.getY()+1 > 19:     
+                        posicionNueva.setY(0)
+                else:
+                    posicionNueva.addY(1)
+
+                if self.matriz[posicionNueva.getX()][posicionNueva.getY()] == 'J':
+                    self.JugadorVSJugador(token,posicionNueva)                                         
+                else:
+                    self.limpiarNPC(token)
+                    self.NPCs[i].asignarPosicion(posicionNueva)
+                    self.matriz[posicionNueva.getX()][posicionNueva.getY()] = self.NPCs[i].obtenerNivel_Char()
+
 
     def moduloE(self,token):
         for i in range(len(self.jugadores)):
@@ -430,6 +532,32 @@ class Mapa:
                     self.matriz[posicionNueva.getX()][posicionNueva.getY()] = 'J'
                     self.comprobarClima(posicionNueva,token)
 
+    def moduloE_N(self,token):
+        for i in range(len(self.NPCs)):
+            if self.NPCs[i].obtenerTOKEN() == token:
+
+                posicionNueva = Posicion(self.NPCs[i].obtenerPosicion().getX(),self.NPCs[i].obtenerPosicion().getY())
+
+                if posicionNueva.getX()-1 < 0: 
+                    posicionNueva.setX(19)
+                    posicionNueva.addY(1)    
+
+                elif posicionNueva.getY()+1 > 19:
+                    posicionNueva.setY(0)    
+                    posicionNueva.addX(-1)
+
+                else:
+                    posicionNueva.addY(1)
+                    posicionNueva.addX(-1)
+
+                if self.matriz[posicionNueva.getX()][posicionNueva.getY()] == 'J':
+                    self.JugadorVSJugador(token,posicionNueva)                                         
+                else:
+                    self.limpiarNPC(token)
+                    self.NPCs[i].asignarPosicion(posicionNueva)
+                    self.matriz[posicionNueva.getX()][posicionNueva.getY()] = self.NPCs[i].obtenerNivel_Char()
+
+
     def moduloQ(self,token):
         for i in range(len(self.jugadores)):
             if self.jugadores[i].obtenerTOKEN() == token:
@@ -462,6 +590,32 @@ class Mapa:
                     self.jugadores[i].asignarPosicion(posicionNueva)
                     self.matriz[posicionNueva.getX()][posicionNueva.getY()] = 'J'
                     self.comprobarClima(posicionNueva,token)
+
+    def moduloQ_N(self,token):
+        for i in range(len(self.NPCs)):
+            if self.NPCs[i].obtenerTOKEN() == token:
+
+                posicionNueva = Posicion(self.NPCs[i].obtenerPosicion().getX(),self.NPCs[i].obtenerPosicion().getY())
+
+                if posicionNueva.getX()-1 < 0: 
+                    posicionNueva.setX(19)
+                    posicionNueva.addY(-1)    
+
+                elif posicionNueva.getY()-1 < 0:
+                    posicionNueva.setY(19)    
+                    posicionNueva.addX(-1)
+
+                else:
+                    posicionNueva.addY(-1)
+                    posicionNueva.addX(-1)
+
+                if self.matriz[posicionNueva.getX()][posicionNueva.getY()] == 'J':
+                    self.JugadorVSJugador(token,posicionNueva)                                         
+                else:
+                    self.limpiarNPC(token)
+                    self.NPCs[i].asignarPosicion(posicionNueva)
+                    self.matriz[posicionNueva.getX()][posicionNueva.getY()] = self.NPCs[i].obtenerNivel_Char()
+
 
     def moduloZ(self,token):
         for i in range(len(self.jugadores)):
@@ -496,6 +650,32 @@ class Mapa:
                     self.matriz[posicionNueva.getX()][posicionNueva.getY()] = 'J'
                     self.comprobarClima(posicionNueva,token)
 
+    def moduloZ_N(self,token):
+        for i in range(len(self.NPCs)):
+            if self.NPCs[i].obtenerTOKEN() == token:
+
+                posicionNueva = Posicion(self.NPCs[i].obtenerPosicion().getX(),self.NPCs[i].obtenerPosicion().getY())
+
+                if posicionNueva.getX()+1 > 19: 
+                    posicionNueva.setX(0)
+                    posicionNueva.addY(-1)    
+
+                elif posicionNueva.getY()-1 < 0:
+                    posicionNueva.setY(19)    
+                    posicionNueva.addX(1)
+
+                else:
+                    posicionNueva.addY(-1)
+                    posicionNueva.addX(1)
+
+                if self.matriz[posicionNueva.getX()][posicionNueva.getY()] == 'J':
+                    self.JugadorVSJugador(token,posicionNueva)                                         
+                else:
+                    self.limpiarNPC(token)
+                    self.NPCs[i].asignarPosicion(posicionNueva)
+                    self.matriz[posicionNueva.getX()][posicionNueva.getY()] = self.NPCs[i].obtenerNivel_Char()
+
+
     def moduloC(self,token):
         for i in range(len(self.jugadores)):
             if self.jugadores[i].obtenerTOKEN() == token:
@@ -528,3 +708,28 @@ class Mapa:
                     self.jugadores[i].asignarPosicion(posicionNueva)
                     self.matriz[posicionNueva.getX()][posicionNueva.getY()] = 'J'
                     self.comprobarClima(posicionNueva,token)
+
+    def moduloC_N(self,token):
+        for i in range(len(self.NPCs)):
+            if self.NPCs[i].obtenerTOKEN() == token:
+
+                posicionNueva = Posicion(self.NPCs[i].obtenerPosicion().getX(),self.NPCs[i].obtenerPosicion().getY())
+
+                if posicionNueva.getX()+1 > 19: 
+                    posicionNueva.setX(0)
+                    posicionNueva.addY(1)    
+
+                elif posicionNueva.getY()+1 > 19:
+                    posicionNueva.setY(0)    
+                    posicionNueva.addX(1)
+
+                else:
+                    posicionNueva.addY(1)
+                    posicionNueva.addX(1)
+
+                if self.matriz[posicionNueva.getX()][posicionNueva.getY()] == 'J':
+                    self.JugadorVSJugador(token,posicionNueva)                                         
+                else:
+                    self.limpiarNPC(token)
+                    self.NPCs[i].asignarPosicion(posicionNueva)
+                    self.matriz[posicionNueva.getX()][posicionNueva.getY()] = self.NPCs[i].obtenerNivel_Char()

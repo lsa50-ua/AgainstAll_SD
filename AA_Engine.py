@@ -337,66 +337,136 @@ if (len(sys.argv) == 5):
                                 while acabada != True:
                                     for movimiento in consumer:
                                         movimientoJugador = movimiento.value.decode(FORMAT).split(":")
-                                        tokenJugador = movimientoJugador[0]
-                                        moverJugador = movimientoJugador[1]      
 
-                                        if moverJugador != "ESCAPE":     # ha pulsado ESCAPE
-                                            if moverJugador == 'w' or moverJugador == 'W':     # w-W -> ARRIBA
-                                                print("El jugador " + tokenJugador + " ha pulsado la tecla " + moverJugador + ".")
-                                                game.moduloW(tokenJugador)
+                                        if len(movimientoJugador) == 2:
+                                            tokenJugador = movimientoJugador[0]
+                                            moverJugador = movimientoJugador[1]      
 
-                                            elif moverJugador == 's' or moverJugador == 'S':     # s-S -> ABAJO
-                                                print("El jugador " + tokenJugador + " ha pulsado la tecla " + moverJugador + ".")
-                                                game.moduloS(tokenJugador)
-                                    
-                                            elif moverJugador == 'a' or moverJugador == 'A':     # a-A -> IZQUIERDA
-                                                print("El jugador " + tokenJugador + " ha pulsado la tecla " + moverJugador + ".")
-                                                game.moduloA(tokenJugador)
+                                            if moverJugador != "ESCAPE":     # ha pulsado ESCAPE
+                                                if moverJugador == 'w' or moverJugador == 'W':     # w-W -> ARRIBA
+                                                    print("El jugador " + tokenJugador + " ha pulsado la tecla " + moverJugador + ".")
+                                                    game.moduloW(tokenJugador)
 
-                                            elif moverJugador == 'd' or moverJugador == 'D':      # d-D -> DERECHA
-                                                print("El jugador " + tokenJugador + " ha pulsado la tecla " + moverJugador + ".")
-                                                game.moduloD(tokenJugador)
+                                                elif moverJugador == 's' or moverJugador == 'S':     # s-S -> ABAJO
+                                                    print("El jugador " + tokenJugador + " ha pulsado la tecla " + moverJugador + ".")
+                                                    game.moduloS(tokenJugador)
+                                        
+                                                elif moverJugador == 'a' or moverJugador == 'A':     # a-A -> IZQUIERDA
+                                                    print("El jugador " + tokenJugador + " ha pulsado la tecla " + moverJugador + ".")
+                                                    game.moduloA(tokenJugador)
 
-                                            elif moverJugador == 'e' or moverJugador == 'E':      # e-E -> ARRIBA-DERECHA
-                                                print("El jugador " + tokenJugador + " ha pulsado la tecla " + moverJugador + ".")
-                                                game.moduloE(tokenJugador)
+                                                elif moverJugador == 'd' or moverJugador == 'D':      # d-D -> DERECHA
+                                                    print("El jugador " + tokenJugador + " ha pulsado la tecla " + moverJugador + ".")
+                                                    game.moduloD(tokenJugador)
 
-                                            elif moverJugador == 'q' or moverJugador == 'Q':      # q-Q -> ARRIBA-IZQUIERDA
-                                                print("El jugador " + tokenJugador + " ha pulsado la tecla " + moverJugador + ".")
-                                                game.moduloQ(tokenJugador)
-                                            
-                                            elif moverJugador == 'z' or moverJugador == 'Z':      # z-Z -> ABAJO-IZQUIERDA
-                                                print("El jugador " + tokenJugador + " ha pulsado la tecla " + moverJugador + ".")
-                                                game.moduloZ(tokenJugador)
+                                                elif moverJugador == 'e' or moverJugador == 'E':      # e-E -> ARRIBA-DERECHA
+                                                    print("El jugador " + tokenJugador + " ha pulsado la tecla " + moverJugador + ".")
+                                                    game.moduloE(tokenJugador)
 
-                                            elif moverJugador == 'c' or moverJugador == 'C':      # c-C -> ABAJO-DERECHA
-                                                print("El jugador " + tokenJugador + " ha pulsado la tecla " + moverJugador + ".")
-                                                game.moduloC(tokenJugador)
+                                                elif moverJugador == 'q' or moverJugador == 'Q':      # q-Q -> ARRIBA-IZQUIERDA
+                                                    print("El jugador " + tokenJugador + " ha pulsado la tecla " + moverJugador + ".")
+                                                    game.moduloQ(tokenJugador)
+                                                
+                                                elif moverJugador == 'z' or moverJugador == 'Z':      # z-Z -> ABAJO-IZQUIERDA
+                                                    print("El jugador " + tokenJugador + " ha pulsado la tecla " + moverJugador + ".")
+                                                    game.moduloZ(tokenJugador)
 
+                                                elif moverJugador == 'c' or moverJugador == 'C':      # c-C -> ABAJO-DERECHA
+                                                    print("El jugador " + tokenJugador + " ha pulsado la tecla " + moverJugador + ".")
+                                                    game.moduloC(tokenJugador)
+
+                                                else:
+                                                    print("El jugador '" + tokenJugador + "' ha pulsado una tecla incorrecta.")
+
+                                                    #for i in range(len(pInGame)):
+                                                        #if pInGame[i].obtenerTOKEN() == tokenJugador:
+                                                            #mensaje = pInGame[i].obtenerTOKEN() + ":INCORRECTA"
+
+                                                    #producer.send('MAPA', mensaje.encode(FORMAT))
+                                                """
+                                                listaMsgMuertos = game.matarJugadores()
+                                                
+                                                for i in range(len(listaMsgMuertos)):
+                                                    producer.send('MAPA', listaMsgMuertos[i].encode(FORMAT))
+                                                    particion = listaMsgMuertos[i].split(":")
+
+                                                    print("")
+                                                    print("El jugador '" + particion[0] + "' ha sido eliminado de la partida.")
+                                                    print("")
+                                                
+                                                pInGame = game.getJugadores()
+                                                """
+                                                
                                             else:
-                                                print("El jugador '" + tokenJugador + "' ha pulsado una tecla incorrecta.")
+                                                print("El jugador " + tokenJugador + " ha decidido abandonar la partida.")     # Hacer lo necesario para que sea eliminado de la partida                            ##### IMPORTANTE ##### 
+                                                msgInfo = tokenJugador + ":FIN"
+                                                for i in range(len(pInGame)):
+                                                    if pInGame[i].obtenerTOKEN() == tokenJugador:
+                                                        pInGame[i].Muerto()
 
-                                                #for i in range(len(pInGame)):
-                                                    #if pInGame[i].obtenerTOKEN() == tokenJugador:
-                                                        #mensaje = pInGame[i].obtenerTOKEN() + ":INCORRECTA"
+                                                producer.send('MAPA', msgInfo.encode(FORMAT))
 
-                                                #producer.send('MAPA', mensaje.encode(FORMAT))
+                                        movimientoNPC = movimiento.value.decode(FORMAT).split('-')
+                                        if len(movimientoNPC) == 2:
+                                            tokenNPC = movimientoNPC[0]
+                                            jugadaNPC = movimientoNPC[1]
+                                            if jugadaNPC == 'w':     # w-W -> ARRIBA
+                                                print("El NPC: " + tokenNPC + " ha pulsado la tecla " + jugadaNPC + ".")
+                                                game.moduloW_N(tokenNPC)
+                                            elif jugadaNPC == 's':     # s-S -> ABAJO
+                                                print("El NPC: " + tokenNPC + " ha pulsado la tecla " + jugadaNPC + ".")
+                                                game.moduloS_N(tokenNPC)                                    
+                                            elif jugadaNPC == 'a':     # a-A -> IZQUIERDA
+                                                print("El NPC: " + tokenNPC + " ha pulsado la tecla " + jugadaNPC + ".")
+                                                game.moduloA_N(tokenNPC)
+                                            elif jugadaNPC == 'd':      # d-D -> DERECHA
+                                                print("El NPC: " + tokenNPC + " ha pulsado la tecla " + jugadaNPC + ".")
+                                                game.moduloD_N(tokenNPC)
+                                            elif jugadaNPC == 'e':      # e-E -> ARRIBA-DERECHA
+                                                print("El NPC: " + tokenNPC + " ha pulsado la tecla " + jugadaNPC + ".")
+                                                game.moduloE_N(tokenNPC)
+                                            elif jugadaNPC == 'q':      # q-Q -> ARRIBA-IZQUIERDA
+                                                print("El NPC: " + tokenNPC + " ha pulsado la tecla " + jugadaNPC + ".")
+                                                game.moduloQ_N(tokenNPC)   
+                                            elif jugadaNPC == 'z':      # z-Z -> ABAJO-IZQUIERDA
+                                                print("El NPC: " + tokenNPC + " ha pulsado la tecla " + jugadaNPC + ".")
+                                                game.moduloZ_N(tokenNPC)
+                                            elif jugadaNPC == 'c':      # c-C -> ABAJO-DERECHA
+                                                print("El NPC: " + tokenNPC + " ha pulsado la tecla " + jugadaNPC + ".")
+                                                game.moduloC_N(tokenNPC)
+                                            elif jugadaNPC == "NewNPC":
+                                                repe = False
+                                                listaNPC = game.getNPCs()
+                                                for i in range(len(listaNPC)):
+                                                    if listaNPC[i].obtenerTOKEN() == tokenNPC:
+                                                        msgRepe = tokenNPC + ":repetido"
+                                                        producer.send('MAPA', msgRepe.encode(FORMAT))
+                                                        repe = True
+                                                        break
+                                                if repe == False:
+                                                    
+                                                    msgOK = tokenNPC +":OK"
+                                                    time.sleep(1)
+                                                    newNPC = NPC()
+                                                    newNPC.asignarTOKEN(tokenNPC)
+                                                    producer.send('MAPA', msgOK.encode(FORMAT))
+                                                    
+                                                    game.añadirNPC(newNPC)
+                                                    game.incorporarNPC(tokenNPC)
+                                                    print("NPC con el token: " + tokenNPC + " y nivel: " + newNPC.obtenerNivel_Char() + " entrando en partida")
+                                                    
 
-                                            listaMsgMuertos = game.matarJugadores()
-                                            
-                                            for i in range(len(listaMsgMuertos)):
-                                                producer.send('MAPA', listaMsgMuertos[i].encode(FORMAT))
-                                                particion = listaMsgMuertos[i].split(":")
+                                        listaMsgMuertos = game.matarJugadores()
+                                                
+                                        for i in range(len(listaMsgMuertos)):
+                                            producer.send('MAPA', listaMsgMuertos[i].encode(FORMAT))
+                                            particion = listaMsgMuertos[i].split(":")
 
-                                                print("")
-                                                print("El jugador '" + particion[0] + "' ha sido eliminado de la partida.")
-                                                print("")
-                                            
-                                            pInGame = game.getJugadores()
-                                            
-                                        else:
-                                            print("El jugador " + tokenJugador + " ha decidido abandonar la partida.")     # Hacer lo necesario para que sea eliminado de la partida                            ##### IMPORTANTE ##### 
-
+                                            print("")
+                                            print("El jugador '" + particion[0] + "' ha sido eliminado de la partida.")
+                                            print("")
+                                        
+                                        pInGame = game.getJugadores()                                                    
                                         cadena = game.matrizToString()
                                         producer.send('MAPA', cadena.encode(FORMAT))
 
@@ -410,7 +480,9 @@ if (len(sys.argv) == 5):
                                 
                             except:
                                 print("Casca el kafka.")
+                                producer.send('MAPA', "FinDePartida".encode(FORMAT))
                                 pass
+                            break
             else:
                 try:
                     conn, addr = server.accept() 
