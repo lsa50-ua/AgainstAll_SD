@@ -516,7 +516,10 @@ if (len(sys.argv) == 5):
 
                             except:
                                 print("Casca el kafka.")
-                                producer.send('MAPA', "FinDePartida".encode(FORMAT))
+                                try:
+                                    producer.send('MAPA', "FinDePartida".encode(FORMAT))
+                                except:
+                                    pass
                                 pass
                             break
             else:

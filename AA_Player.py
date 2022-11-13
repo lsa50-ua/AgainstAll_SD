@@ -63,8 +63,12 @@ def imprimir(matriz):
         print()
 
 def enviarMovs():
-    global stopPedirMovs
-    producer = KafkaProducer(bootstrap_servers = GESTOR_BOOTSTRAP_SERVER)
+    try:
+        global stopPedirMovs
+        producer = KafkaProducer(bootstrap_servers = GESTOR_BOOTSTRAP_SERVER)
+    except:
+        stopPedirMovs = True
+        pass
     topicName = 'PLAYERS'
     while 1:
         if stopPedirMovs == True:
