@@ -288,14 +288,16 @@ if (len(sys.argv) == 6):
                                         stopPedirMovs = True
                                         break
 
-                                    elif mapa.value.decode(FORMAT) == "EMPATE":
+                                    elif mapa.value.decode(FORMAT) == (TOKEN + ":EMPATE"):
                                         system("cls")
                                         print("Se ha acabado la partida por tiempo y has empatado.")
+                                        stopPedirMovs = True
                                         break
                                     
                                     elif mapa.value.decode(FORMAT) == "FinDePartida":
                                         system("cls")
                                         print("Se ha acabado la partida")
+                                        stopPedirMovs = True
                                         break
 
                                     elif len(mapa.value.decode(FORMAT)) > 400:
@@ -308,9 +310,9 @@ if (len(sys.argv) == 6):
                                 pass
 
                             
-
+                            stopPedirMovs = True
                             time.sleep(1)     # Para que finalize el hilo de pedir teclas
-
+                            
                             # Limpio el buffer de teclas
                             while msvcrt.kbhit():
                                 msvcrt.getch()
