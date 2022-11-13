@@ -128,7 +128,7 @@ class Mapa:
         for j in range(len(self.jugadores)):
             if token == self.jugadores[j].obtenerTOKEN():
                 self.jugadores[j].asignarPosicion(posicionNueva)
-                self.jugadores[j].aumentarNivel()
+                self.jugadores[j].aumentarNivel(1)
 
         self.comprobarClima(posicionNueva,token)
     

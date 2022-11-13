@@ -20,6 +20,13 @@ def menuPrincipal():
     print("Nueva partida (1)")
     print("Salir (2)")
 
+def infoPlayers(lista):
+    info = "INFOP: "
+    for i in range(len(lista)):
+        info += "Jugador " + lista[i].getAlias() + " Posicion(" + lista[i].obtenerPosicion().getY() + "," + lista[i].obtenerPosicion().getX() + ") Nivel: " + str(lista[i].obtenerNivel())
+        if i < (len(lista) - 1):
+            info += ";"
+
 def obtenerClimas(game):
     obj = socket.socket()
     obj.connect(WEATHER_ADDR)
@@ -330,7 +337,8 @@ if (len(sys.argv) == 5):
                             try:
                                 consumer = KafkaConsumer (topicName, bootstrap_servers = GESTOR_BOOTSTRAP_SERVER)
                                 producer = KafkaProducer(bootstrap_servers = GESTOR_BOOTSTRAP_SERVER)
-
+                                info = infoPlayers(pInGame)
+                                producer.send('MAPA', info.encode(FORMAT))
                                 cadena = game.matrizToString()
                                 producer.send('MAPA', cadena.encode(FORMAT))
 
@@ -475,7 +483,10 @@ if (len(sys.argv) == 5):
                                             print("El NPC '" + particion[0] + "' ha sido eliminado de la partida.")
                                             print("")
                                         
-                                        pInGame = game.getJugadores()                                                    
+                                        pInGame = game.getJugadores()
+                                        
+                                        info = infoPlayers(pInGame)
+                                        producer.send('MAPA', info.encode(FORMAT))                                                    
                                         cadena = game.matrizToString()
                                         producer.send('MAPA', cadena.encode(FORMAT))
 
