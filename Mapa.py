@@ -113,6 +113,23 @@ class Mapa:
                 cadena += ";"
         return cadena
 
+    def infoPlayers(self):
+        info = "INFOP:"
+        for i in range(len(self.jugadores)):
+            info = info + "Jugador " + self.jugadores[i].getAlias() + " Posicion(" + str(self.jugadores[i].obtenerPosicion().getY()) + "," + str(self.jugadores[i].obtenerPosicion().getX()) + ") Nivel-> " + str(self.jugadores[i].obtenerNivel()) + " Zona -> "
+            if self.jugadores[i].getCiudad() == "ARRIBA-IZQUIERDA":
+                info = info +  self.jugadores[i].getCiudad() + " Ciudad -> "+self.ciudades[0] + " Clima -> " + self.climas[0] + " ºC"
+            elif self.jugadores[i].getCiudad() == "ARRIBA-DERECHA":
+                info = info +  self.jugadores[i].getCiudad() + " Ciudad -> "+self.ciudades[1] + " Clima -> " + self.climas[1] + " ºC"
+            elif self.jugadores[i].getCiudad() == "ABAJO-IZQUIERDA":
+                info = info +  self.jugadores[i].getCiudad() + " Ciudad -> "+self.ciudades[2] + " Clima -> " + self.climas[2] + " ºC"
+            elif self.jugadores[i].getCiudad() == "ABAJO-DERECHA":
+                info = info +  self.jugadores[i].getCiudad() + " Ciudad -> "+self.ciudades[3] + " Clima -> " + self.climas[3] + " ºC"
+            
+            if i < (len(self.jugadores) - 1):
+                info = info + ";"
+        return info
+
     def Mina(self,token,posicionNueva):
         self.limpiarJugador(token)
         self.matriz[posicionNueva.getX()][posicionNueva.getY()] = ' '
@@ -142,7 +159,6 @@ class Mapa:
                             self.limpiarJugador(token)
                             self.jugadores[x].Muerto()
 
-                            self.comprobarClima(posicionNueva,self.jugadores[j].obtenerTOKEN())
 
                         if self.jugadores[x].obtenerNivel() > self.jugadores[j].obtenerNivel():     # Gana el que quiere ir a la posición
                             self.limpiarJugador(self.jugadores[j].obtenerTOKEN())

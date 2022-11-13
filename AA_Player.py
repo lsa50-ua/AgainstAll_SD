@@ -265,22 +265,33 @@ if (len(sys.argv) == 6):
                                 consumer = KafkaConsumer (topicName, bootstrap_servers = GESTOR_BOOTSTRAP_SERVER)
 
                                 for mapa in consumer:
+                                    info = mapa.value.decode(FORMAT).split(":")
                                     
-                                    system("cls")
                                     print("Mapa: " + '\n')
-                                    if mapa.value.decode(FORMAT) == (TOKEN + ":FIN"):
+                                    if info[0] == "INFOP":
+                                        system("cls")
+                                        print('\n')
+                                        infoJugadores = info[1].split(";")
+                                        for i in range(len(infoJugadores)):
+                                            print(infoJugadores[i])
+                                            
+                                    elif mapa.value.decode(FORMAT) == (TOKEN + ":FIN"):
+                                        system("cls")
                                         print("Has perdido.")
                                         print("")
                                         stopPedirMovs = True
                                         break
                                     elif mapa.value.decode(FORMAT) == (TOKEN + ":GANADOR"):
+                                        system("cls")
                                         print("Has ganado.")
                                         print("")
                                         stopPedirMovs = True
                                         break
                                     elif mapa.value.decode(FORMAT) == "FinDePartida":
+                                        system("cls")
                                         print("Se ha acabado la partida")
                                         break
+
                                     #elif mapa.value.decode(FORMAT) == (TOKEN + ":INCORRECTA"):
                                         #print("Has introducido una tecla incorrecta. Por favor intentelo otra vez.")
                                         #print("")
@@ -309,10 +320,12 @@ if (len(sys.argv) == 6):
 
                 except:
                     print("Partida no iniciada.")
+                    clientEngine.close()
                     print("")
 
             elif seleccion == 4:
                 bucle = False
+                break
 
             else:
                 print("Esa opción no existe.")
