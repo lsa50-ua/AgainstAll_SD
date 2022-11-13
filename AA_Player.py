@@ -262,21 +262,23 @@ if (len(sys.argv) == 6):
                                 system("cls")
                                 print("Mapa: " + '\n')
                                 if mapa.value.decode(FORMAT) == (TOKEN + ":FIN"):
-                                    print("Has perdido")
+                                    print("Has perdido.")
+                                    print("")
                                     stopPedirMovs = True
                                     break
                                 elif mapa.value.decode(FORMAT) == (TOKEN + ":GANADOR"):
-                                    print("Has ganado")
+                                    print("Has ganado.")
+                                    print("")
                                     stopPedirMovs = True
                                     break
+                                #elif mapa.value.decode(FORMAT) == (TOKEN + ":INCORRECTA"):
+                                    #print("Has introducido una tecla incorrecta. Por favor intentelo otra vez.")
+                                    #print("")
+                                    #matrix = stringToMatrix(mapa.value.decode(FORMAT))
+                                    #imprimir(matrix)
                                 else:
                                     matrix = stringToMatrix(mapa.value.decode(FORMAT))
                                     imprimir(matrix)
-                                
-
-                                #aqui tiene que imprimir el mapa                                                                                                                                                ##### IMPORTANTE #####
-                                #print ("%s:%d:%d: key=%s value=%s" % (message.topic, message.partition,message.offset, message.key,message.value.decode('utf-8')))
-
                                 
                         except :
                             print("Casca el envio o recibimientos de datos de Kafka.")
@@ -285,9 +287,9 @@ if (len(sys.argv) == 6):
 
                         
 
-                        time.sleep(1) #para que finalize el hilo de pedir teclas
+                        time.sleep(1)     # Para que finalize el hilo de pedir teclas
 
-                        #limpio el buffer de teclas
+                        # Limpio el buffer de teclas
                         while msvcrt.kbhit():
                             msvcrt.getch()
                         

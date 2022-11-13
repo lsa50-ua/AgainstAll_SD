@@ -11,6 +11,7 @@ class Jugador:
         self.EC = 0
         self.token = ""
         self.contraseña = ""
+        self.ciudad = "Ninguna"
 
     def Muerto(self):
         self.muerto = "MUERTO"
@@ -20,6 +21,12 @@ class Jugador:
 
     def obtenerMuerto(self):
         return self.muerto
+    
+    def setCiudad(self,ciudad):
+        self.ciudad = ciudad
+    
+    def getCiudad(self):
+        return self.ciudad
 
     def aumentarNivel(self, cantidad):
         self.nivel += cantidad

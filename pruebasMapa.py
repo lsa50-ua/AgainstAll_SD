@@ -110,6 +110,8 @@ class Mapa:
             if token == self.jugadores[j].obtenerTOKEN():
                 self.jugadores[j].asignarPosicion(posicionNueva)
                 self.jugadores[j].aumentarNivel(1)
+
+        self.comprobarClima(posicionNueva,token)
     
     def JugadorVSJugador(self,token,posicionNueva):
         for j in range(len(self.jugadores)):
@@ -121,6 +123,8 @@ class Mapa:
                             self.limpiarJugador(token)
                             self.jugadores[x].Muerto()
 
+                            self.comprobarClima(posicionNueva,self.jugadores[j].obtenerTOKEN())
+
                         if self.jugadores[x].obtenerNivel() > self.jugadores[j].obtenerNivel():     # Gana el que quiere ir a la posición
                             self.limpiarJugador(self.jugadores[j].obtenerTOKEN())
                             self.limpiarJugador(token)
@@ -129,65 +133,140 @@ class Mapa:
                             self.jugadores[x].asignarPosicion(posicionNueva)
                             self.matriz[posicionNueva.getX()][posicionNueva.getY()] = 'J'
 
+                            self.comprobarClima(posicionNueva,token)
+
     def comprobarClima(self,posicion,token):
         for i in range(len(self.jugadores)):
             if self.jugadores[i].obtenerTOKEN() == token:
-                if posicion.getX() < 10 and posicion.getY() < 10:     # Ciudad ARRIBA-IZQUIERDA
-                    frio = False
-                    calor = False
+                if self.jugadores[i].getCiudad() == "Ninguna":     # Para cuando se colocan en el tablero por primera vez
+                    if posicion.getX() < 10 and posicion.getY() < 10:     # Ciudad ARRIBA-IZQUIERDA
+                        frio = False
+                        calor = False
 
-                    if int(self.climas[0]) <= 10:
-                        frio = True
-                    if int(self.climas[0]) >= 25:
-                        calor = True
+                        if int(self.climas[0]) <= 10:
+                            frio = True
+                        if int(self.climas[0]) >= 25:
+                            calor = True
 
-                    if frio:
-                        self.jugadores[i].aumentarNivel(self.jugadores[i].obtenerEF())
-                    if calor:
-                        self.jugadores[i].aumentarNivel(self.jugadores[i].obtenerEC())
+                        if frio:
+                            self.jugadores[i].aumentarNivel(self.jugadores[i].obtenerEF())
+                        if calor:
+                            self.jugadores[i].aumentarNivel(self.jugadores[i].obtenerEC())
 
-                elif (posicion.getY() >= 10 and posicion.getY() < 20) and posicion.getX() < 10:     # Ciudad ARRIBA-DERECHA
-                    frio = False
-                    calor = False
+                        self.jugadores[i].setCiudad("ARRIBA-IZQUIERDA")
 
-                    if int(self.climas[1]) <= 10:
-                        frio = True
-                    if int(self.climas[1]) >= 25:
-                        calor = True
+                    elif (posicion.getY() >= 10 and posicion.getY() < 20) and posicion.getX() < 10:     # Ciudad ARRIBA-DERECHA
+                        frio = False
+                        calor = False
 
-                    if frio:
-                        self.jugadores[i].aumentarNivel(self.jugadores[i].obtenerEF())
-                    if calor:
-                        self.jugadores[i].aumentarNivel(self.jugadores[i].obtenerEC())
-                
-                elif (posicion.getX() >= 10 and posicion.getX() < 20) and posicion.getY() < 10:     # Ciudad ABAJO-IZQUIERDA
-                    frio = False
-                    calor = False
+                        if int(self.climas[1]) <= 10:
+                            frio = True
+                        if int(self.climas[1]) >= 25:
+                            calor = True
 
-                    if int(self.climas[2]) <= 10:
-                        frio = True
-                    if int(self.climas[2]) >= 25:
-                        calor = True
+                        if frio:
+                            self.jugadores[i].aumentarNivel(self.jugadores[i].obtenerEF())
+                        if calor:
+                            self.jugadores[i].aumentarNivel(self.jugadores[i].obtenerEC())
 
-                    if frio:
-                        self.jugadores[i].aumentarNivel(self.jugadores[i].obtenerEF())
-                    if calor:
-                        self.jugadores[i].aumentarNivel(self.jugadores[i].obtenerEC())
-                
-                else:     # Ciudad ABAJO-DERECHA
-                    frio = False
-                    calor = False
+                        self.jugadores[i].setCiudad("ARRIBA-DERECHA")
+                    
+                    elif (posicion.getX() >= 10 and posicion.getX() < 20) and posicion.getY() < 10:     # Ciudad ABAJO-IZQUIERDA
+                        frio = False
+                        calor = False
 
-                    if int(self.climas[3]) <= 10:
-                        frio = True
-                    if int(self.climas[3]) >= 25:
-                        calor = True
+                        if int(self.climas[2]) <= 10:
+                            frio = True
+                        if int(self.climas[2]) >= 25:
+                            calor = True
 
-                    if frio:
-                        self.jugadores[i].aumentarNivel(self.jugadores[i].obtenerEF())
-                    if calor:
-                        self.jugadores[i].aumentarNivel(self.jugadores[i].obtenerEC())
+                        if frio:
+                            self.jugadores[i].aumentarNivel(self.jugadores[i].obtenerEF())
+                        if calor:
+                            self.jugadores[i].aumentarNivel(self.jugadores[i].obtenerEC())
 
+                        self.jugadores[i].setCiudad("ABAJO-IZQUIERDA")
+                    
+                    else:     # Ciudad ABAJO-DERECHA
+                        frio = False
+                        calor = False
+
+                        if int(self.climas[3]) <= 10:
+                            frio = True
+                        if int(self.climas[3]) >= 25:
+                            calor = True
+
+                        if frio:
+                            self.jugadores[i].aumentarNivel(self.jugadores[i].obtenerEF())
+                        if calor:
+                            self.jugadores[i].aumentarNivel(self.jugadores[i].obtenerEC())
+
+                        self.jugadores[i].setCiudad("ABAJO-DERECHA")
+
+                else:     # Cuando pasa de ciudad a otra (o no, si no se mete en ninugn if)
+                    if posicion.getX() < 10 and posicion.getY() < 10 and self.jugadores[i].getCiudad() != "ARRIBA-IZQUIERDA":     # Ciudad ARRIBA-IZQUIERDA
+                        frio = False
+                        calor = False
+
+                        if int(self.climas[0]) <= 10:
+                            frio = True
+                        if int(self.climas[0]) >= 25:
+                            calor = True
+
+                        if frio:
+                            self.jugadores[i].aumentarNivel(self.jugadores[i].obtenerEF())
+                        if calor:
+                            self.jugadores[i].aumentarNivel(self.jugadores[i].obtenerEC())
+
+                        self.jugadores[i].setCiudad("ARRIBA-IZQUIERDA")
+
+                    if (posicion.getY() >= 10 and posicion.getY() < 20) and posicion.getX() < 10 and self.jugadores[i].getCiudad() != "ARRIBA-DERECHA":     # Ciudad ARRIBA-DERECHA
+                        frio = False
+                        calor = False
+
+                        if int(self.climas[1]) <= 10:
+                            frio = True
+                        if int(self.climas[1]) >= 25:
+                            calor = True
+
+                        if frio:
+                            self.jugadores[i].aumentarNivel(self.jugadores[i].obtenerEF())
+                        if calor:
+                            self.jugadores[i].aumentarNivel(self.jugadores[i].obtenerEC())
+
+                        self.jugadores[i].setCiudad("ARRIBA-DERECHA")
+                    
+                    if (posicion.getX() >= 10 and posicion.getX() < 20) and posicion.getY() < 10 and self.jugadores[i].getCiudad() != "ABAJO-IZQUIERDA":     # Ciudad ABAJO-IZQUIERDA
+                        frio = False
+                        calor = False
+
+                        if int(self.climas[2]) <= 10:
+                            frio = True
+                        if int(self.climas[2]) >= 25:
+                            calor = True
+
+                        if frio:
+                            self.jugadores[i].aumentarNivel(self.jugadores[i].obtenerEF())
+                        if calor:
+                            self.jugadores[i].aumentarNivel(self.jugadores[i].obtenerEC())
+
+                        self.jugadores[i].setCiudad("ABAJO-IZQUIERDA")
+                    
+                    if (posicion.getX() >= 10 and posicion.getX() < 20) and (posicion.getY() >= 10 and posicion.getY() < 20) and self.jugadores[i].getCiudad() != "ABAJO-DERECHA":     # Ciudad ABAJO-DERECHA
+                        frio = False
+                        calor = False
+
+                        if int(self.climas[3]) <= 10:
+                            frio = True
+                        if int(self.climas[3]) >= 25:
+                            calor = True
+
+                        if frio:
+                            self.jugadores[i].aumentarNivel(self.jugadores[i].obtenerEF())
+                        if calor:
+                            self.jugadores[i].aumentarNivel(self.jugadores[i].obtenerEC())
+
+                        self.jugadores[i].setCiudad("ABAJO-DERECHA")
 
     def incorporarJugador(self,token):
         for i in range(len(self.jugadores)):
@@ -204,6 +283,9 @@ class Mapa:
                         if self.matriz[nuevaPosicion.getX()][nuevaPosicion.getY()] == ' ':
                             self.jugadores[i].asignarPosicion(nuevaPosicion)
                             self.matriz[self.jugadores[i].obtenerPosicion().getX()][self.jugadores[i].obtenerPosicion().getY()] = 'J'     # Mirar como identificar en el mapa a los jugadores
+
+                            self.comprobarClima(nuevaPosicion,token)
+
                             break
 
     def limpiarJugador(self,token):
@@ -235,6 +317,7 @@ class Mapa:
                     self.limpiarJugador(token)
                     self.jugadores[i].asignarPosicion(posicionNueva)
                     self.matriz[posicionNueva.getX()][posicionNueva.getY()] = 'J'
+                    self.comprobarClima(posicionNueva,token)
 
     def moduloS(self,token):
         for i in range(len(self.jugadores)):
@@ -260,6 +343,7 @@ class Mapa:
                     self.limpiarJugador(token)
                     self.jugadores[i].asignarPosicion(posicionNueva)
                     self.matriz[posicionNueva.getX()][posicionNueva.getY()] = 'J'
+                    self.comprobarClima(posicionNueva,token)
 
     def moduloA(self,token):
         for i in range(len(self.jugadores)):
@@ -285,6 +369,7 @@ class Mapa:
                     self.limpiarJugador(token)
                     self.jugadores[i].asignarPosicion(posicionNueva)
                     self.matriz[posicionNueva.getX()][posicionNueva.getY()] = 'J'
+                    self.comprobarClima(posicionNueva,token)
 
     def moduloD(self,token):
         for i in range(len(self.jugadores)):
@@ -310,6 +395,7 @@ class Mapa:
                     self.limpiarJugador(token)
                     self.jugadores[i].asignarPosicion(posicionNueva)
                     self.matriz[posicionNueva.getX()][posicionNueva.getY()] = 'J'
+                    self.comprobarClima(posicionNueva,token)
 
     def moduloE(self,token):
         for i in range(len(self.jugadores)):
@@ -342,6 +428,7 @@ class Mapa:
                     self.limpiarJugador(token)
                     self.jugadores[i].asignarPosicion(posicionNueva)
                     self.matriz[posicionNueva.getX()][posicionNueva.getY()] = 'J'
+                    self.comprobarClima(posicionNueva,token)
 
     def moduloQ(self,token):
         for i in range(len(self.jugadores)):
@@ -374,6 +461,7 @@ class Mapa:
                     self.limpiarJugador(token)
                     self.jugadores[i].asignarPosicion(posicionNueva)
                     self.matriz[posicionNueva.getX()][posicionNueva.getY()] = 'J'
+                    self.comprobarClima(posicionNueva,token)
 
     def moduloZ(self,token):
         for i in range(len(self.jugadores)):
@@ -406,6 +494,7 @@ class Mapa:
                     self.limpiarJugador(token)
                     self.jugadores[i].asignarPosicion(posicionNueva)
                     self.matriz[posicionNueva.getX()][posicionNueva.getY()] = 'J'
+                    self.comprobarClima(posicionNueva,token)
 
     def moduloC(self,token):
         for i in range(len(self.jugadores)):
@@ -438,6 +527,7 @@ class Mapa:
                     self.limpiarJugador(token)
                     self.jugadores[i].asignarPosicion(posicionNueva)
                     self.matriz[posicionNueva.getX()][posicionNueva.getY()] = 'J'
+                    self.comprobarClima(posicionNueva,token)
 
 
 """ game = Mapa()

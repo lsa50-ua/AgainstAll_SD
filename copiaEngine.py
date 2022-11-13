@@ -13,8 +13,8 @@ FORMAT = 'utf-8'
 HEADER = 64
 SERVER = socket.gethostbyname(socket.gethostname())
 GESTOR_BOOTSTRAP_SERVER = ['localhost:9092']
-TIMEOUT = 8
-socket.setdefaulttimeout(8)
+TIMEOUT = 10
+socket.setdefaulttimeout(10)
 
 def menuPrincipal():
     print("Nueva partida (1)")
@@ -309,11 +309,6 @@ if (len(sys.argv) == 5):
                         game.Jugadores(jugadores_preparados)     # Guardo los jugadores en el mapa
                         climas = obtenerClimas(game)
 
-                        for i in range(len(jugadores_preparados)):
-                            game.incorporarJugador(jugadores_preparados[i].obtenerTOKEN())     # Pone a todos los jugadores en su posición inicial 
-
-                        jugadores_preparados = game.getJugadores()     # Para que estén actualizados los niveles
-
                         if len(climas) != 4:
                             print("Falta o falla algo en Ciudades.txt; Abortando Partida, Volviendo al menu...")
                             print("")
@@ -326,6 +321,11 @@ if (len(sys.argv) == 5):
                             pInGame = copy.deepcopy(jugadores_preparados)
                             acabada = False
                             topicName = 'PLAYERS'
+
+                            for i in range(len(pInGame)):
+                                game.incorporarJugador(pInGame[i].obtenerTOKEN())     # Pone a todos los jugadores en su posición inicial 
+
+                            pInGame = game.getJugadores()     # Para que estén actualizados los niveles
 
                             try:
                                 consumer = KafkaConsumer (topicName, bootstrap_servers = GESTOR_BOOTSTRAP_SERVER)
@@ -374,24 +374,32 @@ if (len(sys.argv) == 5):
                                                 game.moduloC(tokenJugador)
 
                                             else:
-                                                print("El jugador " + tokenJugador + " ha pulsado una tecla incorrecta.")     # Enviar un mensaje al jugador??
+                                                print("El jugador '" + tokenJugador + "' ha pulsado una tecla incorrecta.")
+
+                                                #for i in range(len(pInGame)):
+                                                    #if pInGame[i].obtenerTOKEN() == tokenJugador:
+                                                        #mensaje = pInGame[i].obtenerTOKEN() + ":INCORRECTA"
+
+                                                #producer.send('MAPA', mensaje.encode(FORMAT))
 
                                             listaMsgMuertos = game.matarJugadores()
                                             
                                             for i in range(len(listaMsgMuertos)):
                                                 producer.send('MAPA', listaMsgMuertos[i].encode(FORMAT))
+                                                particion = listaMsgMuertos[i].split(":")
+
+                                                print("")
+                                                print("El jugador '" + particion[0] + "' ha sido eliminado de la partida.")
+                                                print("")
                                             
-                                            pInGame = game.getJugadores()     # Enviarle un mensaje al jugador de que ha muerto y no puede jugar. Cerrarle juego o algo.             ##### IMPORTANTE #####
+                                            pInGame = game.getJugadores()
                                             
                                         else:
                                             print("El jugador " + tokenJugador + " ha decidido abandonar la partida.")     # Hacer lo necesario para que sea eliminado de la partida                            ##### IMPORTANTE ##### 
 
-                                        #hacer respectivo movimiento en el mapa calcular si se ha pegado con alguien, subido de nivel, explotado mina                                                           ##### IMPORTANTE #####
-                                        #producer.send('MAPA', mapa.encode(FORMAT))
                                         cadena = game.matrizToString()
                                         producer.send('MAPA', cadena.encode(FORMAT))
 
-                                        # Esto hay que cambiarlo, ya que "pInGame" ahora es un array de jugadores y no de TOKENS                                                                   ##### IMPORTANTE #####
                                         if len(pInGame) == 1:
                                             print("Ha ganado el jugador con el Token: ",pInGame[0].obtenerTOKEN())     
                                             ganador = pInGame[0].obtenerTOKEN() + ":GANADOR"     
@@ -405,7 +413,7 @@ if (len(sys.argv) == 5):
                                 pass
             else:
                 try:
-                    conn, addr = server.accept()
+                    conn, addr = server.accept() 
                 except:
                     pass
 
@@ -415,9 +423,6 @@ if (len(sys.argv) == 5):
                     if (CONEX_ACTIVAS <= MAX_CONEXIONES): 
                         thread = threading.Thread(target=handle_client, args=(conn, addr, starttime))
                         thread.start()
-
-                        #print('\n' + f"[CONEXIONES ACTIVAS]: {CONEX_ACTIVAS}")
-                        #print("CONEXIONES RESTANTES PARA CERRAR EL SERVICIO: " + repr(MAX_CONEXIONES-CONEX_ACTIVAS))
                         
                     else:
                         print("OOppsss... DEMASIADAS CONEXIONES. ESPERANDO A QUE ALGUIEN SE VAYA.")
