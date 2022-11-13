@@ -465,6 +465,15 @@ if (len(sys.argv) == 5):
                                             print("")
                                             print("El jugador '" + particion[0] + "' ha sido eliminado de la partida.")
                                             print("")
+
+                                        listaNPCMuertos = game.matarNPCs()
+                                        for i in range(len(listaNPCMuertos)):
+                                            producer.send('MAPA', listaNPCMuertos[i].encode(FORMAT))
+                                            particion = listaNPCMuertos[i].split(":")
+
+                                            print("")
+                                            print("El NPC '" + particion[0] + "' ha sido eliminado de la partida.")
+                                            print("")
                                         
                                         pInGame = game.getJugadores()                                                    
                                         cadena = game.matrizToString()

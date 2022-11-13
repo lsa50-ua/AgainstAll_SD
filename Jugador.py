@@ -28,8 +28,8 @@ class Jugador:
     def getCiudad(self):
         return self.ciudad
 
-    def aumentarNivel(self, cantidad):
-        self.nivel += cantidad
+    def aumentarNivel(self):
+        self.nivel = self.nivel + 1
 
     def asignarAlias(self,alias):
         self.alias = alias

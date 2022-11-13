@@ -87,6 +87,19 @@ class Mapa:
             self.jugadores.pop(posicion)
 
         return listaMsgMuertos
+
+    def matarNPCs(self): 
+        posiciones  = []
+        listaMsgMuertos = []
+        for i in range(len(self.NPCs)):
+            if self.NPCs[i].vivoOmuerto() == True:
+                posiciones.append(i)
+
+        for posicion in posiciones:
+            listaMsgMuertos.append(self.NPCs[posicion].obtenerTOKEN() + ":FIN")
+            self.NPCs.pop(posicion)
+
+        return listaMsgMuertos
             
     def matrizToString(self):
         cadena = ""
@@ -115,7 +128,7 @@ class Mapa:
         for j in range(len(self.jugadores)):
             if token == self.jugadores[j].obtenerTOKEN():
                 self.jugadores[j].asignarPosicion(posicionNueva)
-                self.jugadores[j].aumentarNivel(1)
+                self.jugadores[j].aumentarNivel()
 
         self.comprobarClima(posicionNueva,token)
     
@@ -140,6 +153,64 @@ class Mapa:
                             self.matriz[posicionNueva.getX()][posicionNueva.getY()] = 'J'
 
                             self.comprobarClima(posicionNueva,token)
+
+    def NPCVSJugador(self,tokenNPC,posicionNueva):
+        for j in range(len(self.jugadores)):
+            if self.jugadores[j].obtenerPosicion().getX() == posicionNueva.getX() and self.jugadores[j].obtenerPosicion().getY() == posicionNueva.getY():     # Jugador que esta en la posicion
+                for x in range(len(self.NPCs)):
+                    if tokenNPC == self.NPCs[x].obtenerTOKEN():     # Jugador que quiere ir a la posición
+
+                        if self.NPCs[x].obtenerNivel() < self.jugadores[j].obtenerNivel():     # Gana el que ya estaba en la posición
+                            self.limpiarNPC(tokenNPC)
+                            self.NPCs[x].matar()
+
+
+                        if self.NPCs[x].obtenerNivel() > self.jugadores[j].obtenerNivel():     # Gana el que quiere ir a la posición
+                            self.limpiarJugador(self.jugadores[j].obtenerTOKEN())
+                            self.limpiarNPC(tokenNPC)
+                            self.jugadores[j].Muerto()
+
+                            self.NPCs[x].asignarPosicion(posicionNueva)
+                            self.matriz[posicionNueva.getX()][posicionNueva.getY()] = self.NPCs[x].obtenerNivel_Char()
+                     
+    def JugadorVSNPC(self,token,posicionNueva):
+        for j in range(len(self.NPCs)):
+            if self.NPCs[j].obtenerPosicion().getX() == posicionNueva.getX() and self.NPCs[j].obtenerPosicion().getY() == posicionNueva.getY():     # Jugador que esta en la posicion
+                for x in range(len(self.jugadores)):
+                    if token == self.jugadores[x].obtenerTOKEN():     # Jugador que quiere ir a la posición
+
+                        if self.jugadores[x].obtenerNivel() < self.NPCs[j].obtenerNivel():     # Gana el que ya estaba en la posición
+                            self.limpiarJugador(token)
+                            self.jugadores[x].Muerto()
+
+                        if self.jugadores[x].obtenerNivel() > self.NPCs[j].obtenerNivel():     # Gana el que quiere ir a la posición
+                            self.limpiarNPC(self.NPCs[j].obtenerTOKEN())
+                            self.limpiarJugador(token)
+                            self.NPCs[j].matar()
+
+                            self.jugadores[x].asignarPosicion(posicionNueva)
+                            self.matriz[posicionNueva.getX()][posicionNueva.getY()] = 'J'
+
+                            self.comprobarClima(posicionNueva,token)
+
+    def NPCVSNPC(self,token,posicionNueva):
+        for j in range(len(self.NPCs)):
+            if self.NPCs[j].obtenerPosicion().getX() == posicionNueva.getX() and self.NPCs[j].obtenerPosicion().getY() == posicionNueva.getY():     # Jugador que esta en la posicion
+                for x in range(len(self.NPCs)):
+                    if token == self.NPCs[x].obtenerTOKEN():     # Jugador que quiere ir a la posición
+
+                        if self.NPCs[x].obtenerNivel() < self.NPCs[j].obtenerNivel():     # Gana el que ya estaba en la posición
+                            self.limpiarNPC(token)
+                            self.NPCs[x].matar()
+
+                        if self.NPCs[x].obtenerNivel() > self.NPCs[j].obtenerNivel():     # Gana el que quiere ir a la posición
+                            self.limpiarNPC(self.NPCs[j].obtenerTOKEN())
+                            self.limpiarNPC(token)
+                            self.NPCs[j].matar()
+
+                            self.NPCs[x].asignarPosicion(posicionNueva)
+                            self.matriz[posicionNueva.getX()][posicionNueva.getY()] = self.NPCs[x].obtenerNivel_Char()
+
 
     def comprobarClima(self,posicion,token):
         for i in range(len(self.jugadores)):
@@ -336,7 +407,13 @@ class Mapa:
                     self.Alimento(token,posicionNueva)
 
                 elif self.matriz[posicionNueva.getX()][posicionNueva.getY()] == 'J':
-                    self.JugadorVSJugador(token,posicionNueva)                      
+                    self.JugadorVSJugador(token,posicionNueva) 
+
+                elif (self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '1' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '2' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '3'
+                or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '4' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '5' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '6'
+                or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '7' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '8' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '9'):
+                    
+                    self.JugadorVSNPC(token, posicionNueva)                 
 
                 else:
                     self.limpiarJugador(token)
@@ -356,7 +433,13 @@ class Mapa:
                     posicionNueva.addX(-1)
 
                 if self.matriz[posicionNueva.getX()][posicionNueva.getY()] == 'J':
-                    self.JugadorVSJugador(token,posicionNueva)                      
+                    self.NPCVSJugador(token,posicionNueva)
+
+                elif (self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '1' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '2' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '3'
+                or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '4' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '5' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '6'
+                or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '7' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '8' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '9'):
+                    
+                    self.NPCVSNPC(token, posicionNueva)                      
                 else:
                     self.limpiarNPC(token)
                     self.NPCs[i].asignarPosicion(posicionNueva)
@@ -380,7 +463,13 @@ class Mapa:
                     self.Alimento(token,posicionNueva)
 
                 elif self.matriz[posicionNueva.getX()][posicionNueva.getY()] == 'J':
-                    self.JugadorVSJugador(token,posicionNueva)                                         
+                    self.JugadorVSJugador(token,posicionNueva)           
+
+                elif (self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '1' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '2' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '3'
+                or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '4' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '5' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '6'
+                or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '7' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '8' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '9'):
+                    
+                    self.JugadorVSNPC(token, posicionNueva) 
 
                 else:
                     self.limpiarJugador(token)
@@ -400,8 +489,13 @@ class Mapa:
                     posicionNueva.addX(1)
 
                 if self.matriz[posicionNueva.getX()][posicionNueva.getY()] == 'J':
-                    self.JugadorVSJugador(token,posicionNueva)                                         
+                    self.NPCVSJugador(token,posicionNueva) 
 
+                elif (self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '1' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '2' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '3'
+                or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '4' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '5' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '6'
+                or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '7' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '8' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '9'):
+                    
+                    self.NPCVSNPC(token, posicionNueva) 
                 else:
                     self.limpiarNPC(token)
                     self.NPCs[i].asignarPosicion(posicionNueva)
@@ -428,6 +522,12 @@ class Mapa:
                 elif self.matriz[posicionNueva.getX()][posicionNueva.getY()] == 'J':
                     self.JugadorVSJugador(token,posicionNueva)                                      
 
+                elif (self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '1' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '2' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '3'
+                or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '4' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '5' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '6'
+                or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '7' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '8' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '9'):
+                    
+                    self.JugadorVSNPC(token, posicionNueva) 
+
                 else:
                     self.limpiarJugador(token)
                     self.jugadores[i].asignarPosicion(posicionNueva)
@@ -446,8 +546,14 @@ class Mapa:
                     posicionNueva.addY(-1)
 
                 if self.matriz[posicionNueva.getX()][posicionNueva.getY()] == 'J':
-                    self.JugadorVSJugador(token,posicionNueva)                                         
+                    self.NPCVSJugador(token,posicionNueva)    
 
+                elif (self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '1' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '2' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '3'
+                or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '4' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '5' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '6'
+                or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '7' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '8' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '9'):
+                    
+                    self.NPCVSNPC(token, posicionNueva) 
+                
                 else:
                     self.limpiarNPC(token)
                     self.NPCs[i].asignarPosicion(posicionNueva)
@@ -474,6 +580,12 @@ class Mapa:
                 elif self.matriz[posicionNueva.getX()][posicionNueva.getY()] == 'J':
                     self.JugadorVSJugador(token,posicionNueva)                                      
 
+                elif (self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '1' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '2' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '3'
+                or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '4' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '5' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '6'
+                or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '7' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '8' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '9'):
+                    
+                    self.JugadorVSNPC(token, posicionNueva) 
+
                 else:
                     self.limpiarJugador(token)
                     self.jugadores[i].asignarPosicion(posicionNueva)
@@ -492,7 +604,14 @@ class Mapa:
                     posicionNueva.addY(1)
 
                 if self.matriz[posicionNueva.getX()][posicionNueva.getY()] == 'J':
-                    self.JugadorVSJugador(token,posicionNueva)                                         
+                    self.NPCVSJugador(token,posicionNueva)   
+
+                elif (self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '1' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '2' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '3'
+                or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '4' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '5' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '6'
+                or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '7' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '8' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '9'):
+                    
+                    self.NPCVSNPC(token, posicionNueva) 
+
                 else:
                     self.limpiarNPC(token)
                     self.NPCs[i].asignarPosicion(posicionNueva)
@@ -526,6 +645,12 @@ class Mapa:
                 elif self.matriz[posicionNueva.getX()][posicionNueva.getY()] == 'J':
                     self.JugadorVSJugador(token,posicionNueva)                                      
 
+                elif (self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '1' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '2' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '3'
+                or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '4' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '5' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '6'
+                or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '7' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '8' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '9'):
+                    
+                    self.JugadorVSNPC(token, posicionNueva) 
+
                 else:
                     self.limpiarJugador(token)
                     self.jugadores[i].asignarPosicion(posicionNueva)
@@ -551,7 +676,14 @@ class Mapa:
                     posicionNueva.addX(-1)
 
                 if self.matriz[posicionNueva.getX()][posicionNueva.getY()] == 'J':
-                    self.JugadorVSJugador(token,posicionNueva)                                         
+                    self.NPCVSJugador(token,posicionNueva)
+
+                elif (self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '1' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '2' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '3'
+                or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '4' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '5' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '6'
+                or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '7' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '8' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '9'):
+                    
+                    self.NPCVSNPC(token, posicionNueva) 
+
                 else:
                     self.limpiarNPC(token)
                     self.NPCs[i].asignarPosicion(posicionNueva)
@@ -585,6 +717,12 @@ class Mapa:
                 elif self.matriz[posicionNueva.getX()][posicionNueva.getY()] == 'J':
                     self.JugadorVSJugador(token,posicionNueva)                                      
 
+                elif (self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '1' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '2' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '3'
+                or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '4' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '5' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '6'
+                or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '7' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '8' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '9'):
+                    
+                    self.JugadorVSNPC(token, posicionNueva) 
+
                 else:
                     self.limpiarJugador(token)
                     self.jugadores[i].asignarPosicion(posicionNueva)
@@ -610,7 +748,14 @@ class Mapa:
                     posicionNueva.addX(-1)
 
                 if self.matriz[posicionNueva.getX()][posicionNueva.getY()] == 'J':
-                    self.JugadorVSJugador(token,posicionNueva)                                         
+                    self.NPCVSJugador(token,posicionNueva)
+
+                elif (self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '1' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '2' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '3'
+                or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '4' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '5' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '6'
+                or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '7' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '8' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '9'):
+                    
+                    self.NPCVSNPC(token, posicionNueva)     
+
                 else:
                     self.limpiarNPC(token)
                     self.NPCs[i].asignarPosicion(posicionNueva)
@@ -644,6 +789,12 @@ class Mapa:
                 elif self.matriz[posicionNueva.getX()][posicionNueva.getY()] == 'J':
                     self.JugadorVSJugador(token,posicionNueva)                                      
 
+                elif (self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '1' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '2' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '3'
+                or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '4' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '5' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '6'
+                or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '7' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '8' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '9'):
+                    
+                    self.JugadorVSNPC(token, posicionNueva) 
+
                 else:
                     self.limpiarJugador(token)
                     self.jugadores[i].asignarPosicion(posicionNueva)
@@ -669,7 +820,14 @@ class Mapa:
                     posicionNueva.addX(1)
 
                 if self.matriz[posicionNueva.getX()][posicionNueva.getY()] == 'J':
-                    self.JugadorVSJugador(token,posicionNueva)                                         
+                    self.NPCVSJugador(token,posicionNueva) 
+
+                elif (self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '1' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '2' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '3'
+                or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '4' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '5' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '6'
+                or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '7' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '8' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '9'):
+                    
+                    self.NPCVSNPC(token, posicionNueva) 
+
                 else:
                     self.limpiarNPC(token)
                     self.NPCs[i].asignarPosicion(posicionNueva)
@@ -703,6 +861,12 @@ class Mapa:
                 elif self.matriz[posicionNueva.getX()][posicionNueva.getY()] == 'J':
                     self.JugadorVSJugador(token,posicionNueva)                                      
 
+                elif (self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '1' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '2' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '3'
+                or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '4' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '5' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '6'
+                or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '7' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '8' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '9'):
+                    
+                    self.JugadorVSNPC(token, posicionNueva) 
+
                 else:
                     self.limpiarJugador(token)
                     self.jugadores[i].asignarPosicion(posicionNueva)
@@ -728,7 +892,14 @@ class Mapa:
                     posicionNueva.addX(1)
 
                 if self.matriz[posicionNueva.getX()][posicionNueva.getY()] == 'J':
-                    self.JugadorVSJugador(token,posicionNueva)                                         
+                    self.NPCVSJugador(token,posicionNueva)
+
+                elif (self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '1' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '2' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '3'
+                or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '4' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '5' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '6'
+                or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '7' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '8' or self.matriz[posicionNueva.getX()][posicionNueva.getY()] == '9'):
+                    
+                    self.NPCVSNPC(token, posicionNueva) 
+
                 else:
                     self.limpiarNPC(token)
                     self.NPCs[i].asignarPosicion(posicionNueva)
